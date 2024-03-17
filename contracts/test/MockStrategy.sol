@@ -1,8 +1,8 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../interfaces/IStrategy.sol";
+import "../interfaces/IBridgingStrategy.sol";
 import "../interfaces/ISwitcher.sol";
 
 contract MockStrategy is IBridgingStrategy {
@@ -11,6 +11,9 @@ contract MockStrategy is IBridgingStrategy {
 
     /// @inheritdoc IBridgingStrategy
     address public switcher;
+
+    /// @inheritdoc IBridgingStrategy
+    address public destination;
 
     /// @inheritdoc IBridgingStrategy
     uint public bridgedAssets;
@@ -59,16 +62,18 @@ contract MockStrategy is IBridgingStrategy {
     }
 
     /// @inheritdoc IBridgingStrategy
-    function doHardWork() external {
+    /*function doHardWork() external {
+
+    }*/
+
+    /// @inheritdoc IBridgingStrategy
+    function bridgeAssets() external {
 
     }
 
     /// @inheritdoc IBridgingStrategy
-    function invest() external {
+    function canBridgeAssets() public view returns (bool can, uint amount) {}
 
-    }
-
-    /// @inheritdoc IBridgingStrategy
     function isReadyToHardWork() external view returns (bool) {
         return _isReadyToHardWork;
     }
@@ -97,7 +102,15 @@ contract MockStrategy is IBridgingStrategy {
         IERC20(asset).transfer(switcher, withdrawAmount);
     }
 
-    function requestAssets(uint amount) external {
-        totalRequested += amount;
+    /// @inheritdoc IBridgingStrategy
+    function requestClaimAllAssets() external {}
+
+    /// @inheritdoc IBridgingStrategy
+    function requestClaimAssets(uint vaultSharesAmount) external {
+        // vault share price is 1.0
+        totalRequested += vaultSharesAmount;
     }
+
+    /// @inheritdoc IBridgingStrategy
+    function claimRequestedAssets(address[] calldata sharesHolders) external {}
 }

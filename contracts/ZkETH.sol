@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "./interfaces/IStrategy.sol";
 import "./interfaces/ISwitcher.sol";
 
 /// @title Diva liquid staked Ether on zkEVM

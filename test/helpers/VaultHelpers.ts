@@ -1,13 +1,13 @@
-import {MockERC20, ZkETH} from "../../typechain-types";
+import {MockERC20, ZkETH, WETH9} from "../../typechain-types";
 import {HardhatEthersSigner} from "@nomicfoundation/hardhat-ethers/signers";
 
 export const depositToVault = async (
   user: HardhatEthersSigner,
   vault: ZkETH,
-  mockToken: MockERC20,
+  weth: WETH9,
   amount: bigint
 ) => {
-  await mockToken.connect(user).mint(amount)
-  await mockToken.connect(user).approve(await vault.getAddress(), amount)
+  await weth.connect(user).deposit({value: amount})
+  await weth.connect(user).approve(await vault.getAddress(), amount)
   await vault.connect(user).deposit(amount, user.address)
 }

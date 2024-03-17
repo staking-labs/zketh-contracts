@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "./interfaces/ISwitcher.sol";
-import "./interfaces/IStrategy.sol";
+import "./interfaces/IBridgingStrategy.sol";
 
 /// @title Switches strategy of the vault
 /// @author a17
@@ -185,7 +185,7 @@ contract Switcher is ISwitcher {
         announcedPendingStrategy = address(0);
         uint needRequest = IBridgingStrategy(strategy).bridgedAssets() - IBridgingStrategy(strategy).totalRequested();
         if (needRequest > 0) {
-            IBridgingStrategy(strategy).requestAssets(needRequest);
+            IBridgingStrategy(strategy).requestClaimAllAssets();
         }
         emit PendingStrategy(_announcedPendingStrategy);
     }

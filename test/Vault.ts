@@ -10,7 +10,7 @@ describe("Vault", function () {
   async function deployVaultAndSwitcher() {
     const [deployer, governance, user1, user2] = await ethers.getSigners();
 
-    const weth = await (await ethers.getContractFactory("MockERC20")).deploy("Mock Wrapped Ether", "WETH", 18)
+    const weth = await (await ethers.getContractFactory("WETH9")).deploy()
     const switcher = await (await ethers.getContractFactory("Switcher")).deploy(governance.address)
     const vault = await (await ethers.getContractFactory("ZkETH")).deploy(await weth.getAddress(), await switcher.getAddress())
 
@@ -61,8 +61,8 @@ describe("Vault", function () {
       const {vault, switcher, weth, user1, user2} = await loadFixture(deployVaultAndSwitcher);
 
       // fill test users accounts
-      await weth.connect(user1).mint(parseUnits("100", 18))
-      await weth.connect(user2).mint(parseUnits("100", 18))
+      await weth.connect(user1).deposit({value: parseUnits("100", 18)})
+      await weth.connect(user2).deposit({value: parseUnits("100", 18)})
       const user1BalanceBefore = await weth.balanceOf(user1.address)
       const user2BalanceBefore = await weth.balanceOf(user2.address)
 

@@ -11,7 +11,7 @@ import {increase} from "@nomicfoundation/hardhat-network-helpers/dist/src/helper
 describe("Switcher", function () {
   async function deployVaultAndSwitcherAndStrategies() {
     const [deployer, governance, user1, user2] = await ethers.getSigners();
-    const weth = await (await ethers.getContractFactory("MockERC20")).deploy("Mock Wrapped Ether", "WETH", 18)
+    const weth = await (await ethers.getContractFactory("WETH9")).deploy()
     const switcher = await (await ethers.getContractFactory("Switcher")).deploy(governance.address)
     const vault = await (await ethers.getContractFactory("ZkETH")).deploy(await weth.getAddress(), await switcher.getAddress())
     const strategy1 = await (await ethers.getContractFactory("MockStrategy")).deploy(await switcher.getAddress())
