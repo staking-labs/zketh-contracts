@@ -2,21 +2,9 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import 'hardhat-ignore-warnings'
 import "@openzeppelin/hardhat-upgrades";
-import {config as dotEnvConfig} from "dotenv";
+import {getEnv} from "./scripts/getEnv";
 
-dotEnvConfig();
-const argv = require('yargs/yargs')()
-  .env('')
-  .options({
-    hardhatChainId: {
-      type: "number",
-      default: 31337
-    },
-    loggingEnabled: {
-      type: "boolean",
-      default: false
-    },
-  }).argv;
+const argv = getEnv()
 
 const config: HardhatUserConfig = {
   networks: {

@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@0xpolygonhermez/zkevm-contracts/contracts/v2/interfaces/IPolygonZkEVMBridgeV2.sol";
+import "@0xpolygonhermez/zkevm-contracts/contracts/interfaces/IBridgeMessageReceiver.sol";
 import "./interfaces/IDepositWrapper.sol";
 import "./interfaces/IComptroller.sol";
 import "./interfaces/IWETH9.sol";
 
-contract EnzymeStaker {
-
+/// @title Stake bridged ETH to Enzyme Diva Early Staker Vault
+/// @author a17
+contract EnzymeStaker is IBridgeMessageReceiver {
     address public immutable bridge;
 
     address public immutable depositWrapper;
@@ -18,12 +21,16 @@ contract EnzymeStaker {
 
     uint24 internal immutable id;
 
-    uint24 internal immutable idL2;
+    uint32 internal immutable idL2;
 
     address internal immutable weth;
 
-    event Setup(address bridge, address comptroller, address depositWrapper, address strategyL2, uint24 id, uint24 idL2, address weth);
-    event ClaimRedemption(uint amount);
+    bool internal isClaiming;
+
+    error ClaimByThisContractOnly();
+
+    event Setup(address bridge, address comptroller, address depositWrapper, address strategyL2, uint24 id, uint32 idL2, address weth);
+    event ClaimRedemption(uint amount, uint gotEther);
 
     constructor(address bridge_, address comptroller_, address depositWrapper_, address strategyL2_, uint24 id_, uint24 idL2_, address weth_) {
         bridge = bridge_;
@@ -41,23 +48,22 @@ contract EnzymeStaker {
         if (bridge == msg.sender) {
             IDepositWrapper(depositWrapper).exchangeEthAndBuyShares{value: msg.value}(
                 comptroller,
-                0,
+                1,
                 address(0),
                 address(0),
                 "",
                 0
             );
-        } else {
-            // if (weth == msg.sender) {
-            IPolygonZkEVMBridgeV2(bridge).bridgeAsset{value: msg.value}(
-                idL2,
-                strategyL2,
-                msg.value,
-                address(0),
-                true,
-                bytes("0")
-            );
-            // }
+        }
+    }
+
+    function onMessageReceived(
+        address,
+        uint32,
+        bytes memory
+    ) external payable {
+        if (!isClaiming) {
+            revert ClaimByThisContractOnly();
         }
     }
 
@@ -69,6 +75,7 @@ contract EnzymeStaker {
         bytes32 rollupExitRoot,
         bytes calldata metadata
     ) external {
+        isClaiming = true;
         IPolygonZkEVMBridgeV2(bridge).claimMessage(
             smtProofLocalExitRoot,
             smtProofRollupExitRoot,
@@ -82,6 +89,7 @@ contract EnzymeStaker {
             0,
             metadata
         );
+        isClaiming = false;
 
         uint amount = _toUint(metadata, 0);
 
@@ -92,9 +100,21 @@ contract EnzymeStaker {
             new address[](0)
         );
 
-        IWETH9(weth).withdraw(amount);
+        address _weth = weth;
 
-        emit ClaimRedemption(amount);
+        uint balance = IERC20(_weth).balanceOf(address(this));
+        IWETH9(_weth).withdraw(balance);
+
+        IPolygonZkEVMBridgeV2(bridge).bridgeAsset{value: balance}(
+            idL2,
+            strategyL2,
+            balance,
+            address(0),
+            true,
+            bytes("0")
+        );
+
+        emit ClaimRedemption(amount, balance);
     }
 
     function _toUint(bytes memory _bytes, uint _start) internal pure returns (uint out) {
