@@ -141,15 +141,16 @@ describe("BridgedStakingStrategy", function () {
       expect(await strategy.totalAssets()).to.equal(amount1 - vaultBuffer)
       expect(await strategy.bridgedAssets()).to.equal(0n)
 
-      const canBridgeAssetsReturn = await strategy.canBridgeAssets()
+      const canBridgeAssetsReturn = await strategy.needBridgingNow()
       expect(canBridgeAssetsReturn[0]).to.equal(true)
-      expect(canBridgeAssetsReturn[1]).to.equal(amount1 - vaultBuffer)
+      expect(canBridgeAssetsReturn[1]).to.equal(true)
+      expect(canBridgeAssetsReturn[2]).to.equal(amount1 - vaultBuffer)
 
-      await expect(strategy.bridgeAssets()).to.be.revertedWithCustomError(strategy, 'DestinationIsNotSet')
+      await expect(strategy.callBridge()).to.be.revertedWithCustomError(strategy, 'DestinationIsNotSet')
 
       await strategy.connect(governance).setDestination(await enzymeStaker.getAddress())
 
-      await strategy.bridgeAssets()
+      await strategy.callBridge()
 
       expect(await strategy.bridgedAssets()).to.equal(amount1 - vaultBuffer)
     })
@@ -172,7 +173,7 @@ describe("BridgedStakingStrategy", function () {
 
       const vaultBuffer = amount1 * await vault.BUFFER() / await vault.BUFFER_DENOMINATOR()
 
-      await strategy.bridgeAssets({gasLimit: 15_000_000})
+      await strategy.callBridge()
 
       const amountOfSharesToWithdraw = parseUnits("5.0", 18)
 
@@ -189,16 +190,17 @@ describe("BridgedStakingStrategy", function () {
       expect(await vault.balanceOf(await strategy.getAddress())).equal(amountOfSharesToWithdraw)
       expect(await strategy.totalRequestedVaultSharesForClaim()).equal(amountOfSharesToWithdraw)
       expect(await strategy.bridgedAssets()).equal(amount1 - vaultBuffer)
-      let canBridgeMessage = await strategy.canBridgeClaimRequestMessage()
+      let canBridgeMessage = await strategy.needBridgingNow()
       expect(canBridgeMessage[0]).equal(false)
-      expect(canBridgeMessage[1]).equal(0n)
+      expect(canBridgeMessage[2]).equal(amountOfSharesToWithdraw)
 
       await increase(86400)
-      canBridgeMessage = await strategy.canBridgeClaimRequestMessage()
+      canBridgeMessage = await strategy.needBridgingNow()
       expect(canBridgeMessage[0]).equal(true)
-      expect(canBridgeMessage[1]).equal(amountOfSharesToWithdraw)
+      expect(canBridgeMessage[1]).equal(false)
+      expect(canBridgeMessage[2]).equal(amountOfSharesToWithdraw)
 
-      await strategy.bridgeMessage()
+      await strategy.callBridge()
 
       expect(await strategy.pendingRequestedBridgingAssets()).equal(amountOfSharesToWithdraw)
       expect(await strategy.bridgedAssets()).equal(amount1 - vaultBuffer - amountOfSharesToWithdraw)

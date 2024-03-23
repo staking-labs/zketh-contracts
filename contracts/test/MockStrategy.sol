@@ -62,17 +62,10 @@ contract MockStrategy is IBridgingStrategy {
     }
 
     /// @inheritdoc IBridgingStrategy
-    /*function doHardWork() external {
-
-    }*/
+    function callBridge() external {}
 
     /// @inheritdoc IBridgingStrategy
-    function bridgeAssets() external {
-
-    }
-
-    /// @inheritdoc IBridgingStrategy
-    function canBridgeAssets() public view returns (bool can, uint amount) {}
+    function needBridgingNow() public view returns (bool need, bool toL1, uint amount) {}
 
     function isReadyToHardWork() external view returns (bool) {
         return _isReadyToHardWork;

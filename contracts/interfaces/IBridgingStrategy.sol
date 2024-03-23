@@ -29,8 +29,11 @@ interface IBridgingStrategy {
     /// @notice Total requested assets for withdraw from another network
     function totalRequested() external view returns (uint);
 
-    /// @notice Is ready to bridge assets to another network
-    function canBridgeAssets() external view returns (bool can, uint amount);
+    /// @notice Is ready to call bridge
+    /// @return need Is need to call bridge now
+    /// @return toL1 Need bridge assets to L1
+    /// @return amount Amount of asset for bridging or request withdraw
+    function needBridgingNow() external view returns (bool need, bool toL1, uint amount);
 
     /// @notice Withdraws all assets under strategy management to the Switcher
     /// @dev Will only be executed if all assets have already been transferred to the current network
@@ -39,11 +42,8 @@ interface IBridgingStrategy {
     /// @notice Withdraws assets to the Switcher
     function withdrawToSwitcher(uint amount) external;
 
-    /// @notice Bridge assets for staking on another network
-    function bridgeAssets() external;
-
-    /// @notice Claim cross-chain message with updated balance snapshot
-//    function doHardWork() external; /* returns (uint earned)*/
+    /// @notice Bridge assets for staking on another network or request withdraw from it
+    function callBridge() external;
 
     /// @notice Send message to another network for claiming all invested assets
     /// Only Switcher can call it.
@@ -55,6 +55,5 @@ interface IBridgingStrategy {
 
     /// @notice Claim requested and bridged from another network assets
     function claimRequestedAssets(address[] calldata sharesHolders) external;
-
 
 }
