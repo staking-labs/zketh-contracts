@@ -19,9 +19,6 @@ contract MockStrategy is IBridgingStrategy {
     uint public bridgedAssets;
 
     /// @inheritdoc IBridgingStrategy
-    uint public lastHardWork;
-
-    /// @inheritdoc IBridgingStrategy
     uint public totalRequested;
 
     bool internal _isReadyToHardWork;
@@ -60,6 +57,8 @@ contract MockStrategy is IBridgingStrategy {
         uint b = IERC20(asset).balanceOf(address (this));
         IERC20(asset).transfer(address(1), b / 10);
     }
+
+    function pendingRequestedBridgingAssets() external view returns (uint) {}
 
     /// @inheritdoc IBridgingStrategy
     function callBridge() external {}

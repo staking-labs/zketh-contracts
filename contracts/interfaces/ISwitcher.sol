@@ -28,6 +28,9 @@ interface ISwitcher {
     /// @notice Current active strategy
     function strategy() external view returns (address);
 
+    /// @notice New strategy
+    function pendingStrategy() external view returns (address);
+
     /// @notice Address that can manage strategies
     function governance() external view returns (address);
 

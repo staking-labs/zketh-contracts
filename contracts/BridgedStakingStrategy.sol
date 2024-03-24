@@ -45,10 +45,8 @@ contract BridgedStakingStrategy is IBridgingStrategy {
     /// @inheritdoc IBridgingStrategy
     uint public bridgedAssets;
 
-    uint public pendingRequestedBridgingAssets;
-
     /// @inheritdoc IBridgingStrategy
-    uint public lastHardWork;
+    uint public pendingRequestedBridgingAssets;
 
     uint public lastBridgeTime;
 
@@ -92,7 +90,7 @@ contract BridgedStakingStrategy is IBridgingStrategy {
         uint _pendingRequestedBridgingAssets = pendingRequestedBridgingAssets;
         if (!_isWethWithdrawing && _pendingRequestedBridgingAssets > 0) {
             IWETH9(asset).deposit{value: msg.value}();
-            if (msg.value <= _pendingRequestedBridgingAssets) {
+            if (msg.value <= _pendingRequestedBridgingAssets && ISwitcher(switcher).pendingStrategy() == address(0)) {
                 pendingRequestedBridgingAssets = _pendingRequestedBridgingAssets - msg.value;
             } else {
                 pendingRequestedBridgingAssets = 0;
@@ -128,7 +126,20 @@ contract BridgedStakingStrategy is IBridgingStrategy {
 
     /// @inheritdoc IBridgingStrategy
     function requestClaimAllAssets() external onlySwitcher {
-        // todo implement
+        uint amount = type(uint).max;
+
+        IPolygonZkEVMBridgeV2(bridge).bridgeMessage(
+            destinationNetwork,
+            destination,
+            true,
+            abi.encodePacked(amount)
+        );
+
+        lastBridgeTime = block.timestamp;
+        pendingRequestedBridgingAssets += bridgedAssets;
+        bridgedAssets = 0;
+
+        emit BridgeRequestMessageToL1(amount);
     }
 
     /// @inheritdoc IBridgingStrategy

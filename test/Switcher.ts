@@ -81,8 +81,9 @@ describe("Switcher", function () {
       await strategy1.setTotalRequested(0n)
       expect(await switcher.announcedPendingStrategy()).to.equal(ZeroAddress)
       expect(await switcher.pendingStrategy()).to.equal(strategy2Address)
-      await expect(switcher.startStrategySwitching()).to.be.revertedWithCustomError(switcher, "NoNewStrategyAnnounced")
 
+
+      await expect(switcher.startStrategySwitching()).to.be.revertedWithCustomError(switcher, "NoNewStrategyAnnounced")
 
       // deposits and withdrawals are forbidden while switching
       await expect(vault.connect(user1).redeem(parseUnits("0.5"), user1.address, user1.address)).to.be.revertedWithCustomError(switcher, "StrategyIsNowSwitching")

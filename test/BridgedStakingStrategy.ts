@@ -3,7 +3,7 @@ import {
 } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
 import {ethers, upgrades} from "hardhat";
-import {parseUnits, ZeroAddress} from "ethers";
+import {parseUnits, ZeroAddress, parseEther} from "ethers";
 import {depositToVault} from "./helpers/VaultHelpers";
 import {PolygonZkEVMBridgeV2, PolygonZkEVMGlobalExitRoot} from "../typechain-types";
 import {mine} from "@nomicfoundation/hardhat-network-helpers/dist/src/helpers/mine";
@@ -168,6 +168,8 @@ describe("BridgedStakingStrategy", function () {
       } = await loadFixture(deployBridgeVaultStrategy);
       await strategy.connect(governance).setDestination(await enzymeStaker.getAddress())
 
+      await expect(strategy.callBridge()).to.be.revertedWithCustomError(strategy, 'CantBridge')
+
       const amount1 = parseUnits("10.4", 18)
       await depositToVault(user1, vault, weth, amount1)
 
@@ -180,8 +182,8 @@ describe("BridgedStakingStrategy", function () {
       await expect(vault.redeem(amountOfSharesToWithdraw, user1.address, user1.address)).to.be.revertedWithCustomError(vault, "WaitAFewBlocks")
 
       await mine(5)
-
       await expect(vault.redeem(amountOfSharesToWithdraw, user1.address, user1.address)).to.be.revertedWithCustomError(strategy, "NotEnoughBridgedAssets")
+      await expect(vault.connect(user1).withdrawAll()).to.revertedWithCustomError(strategy, "NotAllAssetsAreBridged")
 
       await vault.connect(user1).approve(await strategy.getAddress(), amountOfSharesToWithdraw)
       await strategy.connect(user1).requestClaimAssets(amountOfSharesToWithdraw)
@@ -283,13 +285,58 @@ describe("BridgedStakingStrategy", function () {
       await mine(5)
 
       await strategy.claimRequestedAssets([user1.address])
+
+      await expect(strategy.claimRequestedAssets([ZeroAddress])).to.revertedWithCustomError(strategy, "NoClaimRequestForUser")
+    })
+
+    it("Switch strategy", async function () {
+      const {
+        vault,
+        weth,
+        strategy ,
+        user1,
+        governance,
+        enzymeStaker,
+        polygonZkEVMGlobalExitRootL2,
+        rollupManager,
+        switcher,
+      } = await loadFixture(deployBridgeVaultStrategy);
+
+      await strategy.connect(governance).setDestination(await enzymeStaker.getAddress())
+      const amount1 = parseUnits("10.4", 18)
+      await depositToVault(user1, vault, weth, amount1)
+
+      await strategy.callBridge()
+
+      const strategy2 = await (await ethers.getContractFactory("MockStrategy")).deploy(await switcher.getAddress())
+      const strategy2Address = await strategy2.getAddress()
+      await switcher.connect(governance).announceNewStrategy(strategy2Address)
+      await increase(86400)
+      await switcher.startStrategySwitching()
+
+      await expect(switcher.finishStrategySwitching()).to.revertedWithCustomError(switcher, "AssetsHaveNotYetBeenBridged")
+
+      const bridgeAsSigner = await ethers.getImpersonatedSigner(await strategy.bridge())
+      await bridgeAsSigner.sendTransaction({
+        to: await strategy.getAddress(),
+        value: parseEther("0.5"),
+      });
+
+      await switcher.finishStrategySwitching()
+
+      expect(await strategy.totalAssets()).eq(0n)
+
+      await vault.connect(user1).withdrawAll()
+
     })
   })
 
   describe("Access", function () {
     it("Set destination", async function () {
-      const {strategy , enzymeStaker} = await loadFixture(deployBridgeVaultStrategy);
+      const {strategy , enzymeStaker, governance} = await loadFixture(deployBridgeVaultStrategy);
       await expect(strategy.setDestination(await enzymeStaker.getAddress())).to.be.revertedWithCustomError(strategy, 'OnlyGovernanceCanDoThis')
+      await strategy.connect(governance).setDestination(await enzymeStaker.getAddress())
+      await expect(strategy.connect(governance).setDestination(await enzymeStaker.getAddress())).to.be.revertedWithCustomError(strategy, 'Already')
     })
 
     it("withdrawToSwitcher", async function () {

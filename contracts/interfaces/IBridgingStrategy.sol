@@ -23,11 +23,11 @@ interface IBridgingStrategy {
     /// @notice Amount of assets under strategy management on another network
     function bridgedAssets() external view returns (uint);
 
-    /// @notice Last time of HardWork execution on current network
-    function lastHardWork() external view returns (uint);
-
     /// @notice Total requested assets for withdraw from another network
     function totalRequested() external view returns (uint);
+
+    /// @notice Assets in process of bridging
+    function pendingRequestedBridgingAssets() external view returns (uint);
 
     /// @notice Is ready to call bridge
     /// @return need Is need to call bridge now

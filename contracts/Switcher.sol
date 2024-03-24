@@ -195,9 +195,15 @@ contract Switcher is ISwitcher {
         if (_pendingStrategy == address(0)) {
             revert StrategyIsNotSwitchingNow();
         }
-        if (IBridgingStrategy(strategy).bridgedAssets() > 0) {
+        if (
+            IBridgingStrategy(strategy).bridgedAssets() > 0
+            || IBridgingStrategy(strategy).pendingRequestedBridgingAssets() > 0
+        ) {
             revert AssetsHaveNotYetBeenBridged();
         }
+
+        IBridgingStrategy(strategy).withdrawAllToSwitcher();
+
         strategy = _pendingStrategy;
         pendingStrategy = address(0);
         emit NewStrategy(_pendingStrategy);

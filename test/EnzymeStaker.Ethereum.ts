@@ -6,6 +6,7 @@ import {EthAddresses} from "../scripts/EthAddresses";
 import {expect} from "chai";
 import {EnzymeStaker, PolygonZkEVMBridgeV2__factory, PolygonZkEVMGlobalExitRootV2__factory} from "../typechain-types";
 import {parseEther, solidityPacked, ZeroAddress} from "ethers";
+// @ts-ignore
 import {MTBridge, mtBridgeUtils} from "@0xpolygonhermez/zkevm-commonjs";
 // import {ErrorDecoder} from "ethers-decode-error";
 import {increase} from "@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time/increase";
