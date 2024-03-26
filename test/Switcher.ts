@@ -13,7 +13,9 @@ describe("Switcher", function () {
     const [deployer, governance, user1, user2] = await ethers.getSigners();
     const weth = await (await ethers.getContractFactory("WETH9")).deploy()
     const switcher = await (await ethers.getContractFactory("Switcher")).deploy(governance.address)
-    const vault = await (await ethers.getContractFactory("ZkETH")).deploy(await weth.getAddress(), await switcher.getAddress())
+    const rewardToken = await (await ethers.getContractFactory("MockERC20")).deploy("DIVA premint receipt", "preDIVA", 18n)
+    const gauge = await (await ethers.getContractFactory("Gauge")).deploy(await rewardToken.getAddress(), 86400n * 7n, governance.address)
+    const vault = await (await ethers.getContractFactory("ZkETH")).deploy(await weth.getAddress(), await switcher.getAddress(), await gauge.getAddress())
     const strategy1 = await (await ethers.getContractFactory("MockStrategy")).deploy(await switcher.getAddress())
     const strategy2 = await (await ethers.getContractFactory("MockStrategy")).deploy(await switcher.getAddress())
 

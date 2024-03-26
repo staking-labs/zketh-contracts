@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./interfaces/ISwitcher.sol";
+import "./interfaces/IGauge.sol";
 
 /// @title Diva liquid staked Ether on zkEVM
 /// @author a17
@@ -26,6 +27,9 @@ contract ZkETH is ERC4626, ReentrancyGuard {
 
     /// @notice The switcher manages the staking strategy
     address public immutable switcher;
+
+    /// @notice Stakeless gauge for distributing rewards
+    address public immutable gauge;
 
     /// @dev A user should wait this block amounts before able to withdraw.
     uint public withdrawRequestBlocks;
@@ -52,10 +56,12 @@ contract ZkETH is ERC4626, ReentrancyGuard {
     /*                      INITIALIZATION                        */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
-    constructor(address weth, address switcher_) ERC20("Synthetic Diva ETH", "zkETH") ERC4626(IERC20(weth)) {
+    constructor(address weth, address switcher_, address gauge_) ERC20("Synthetic Diva ETH", "zkETH") ERC4626(IERC20(weth)) {
         switcher = switcher_;
+        gauge = gauge_;
         withdrawRequestBlocks = 5;
         ISwitcher(switcher_).setup(weth);
+        IGauge(gauge_).setStakingToken(address(this));
     }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
@@ -234,6 +240,10 @@ contract ZkETH is ERC4626, ReentrancyGuard {
         super._update(from, to, value);
         withdrawRequests[from] = block.number;
         withdrawRequests[to] = block.number;
+
+        IGauge _gauge = IGauge(gauge);
+        _gauge.handleBalanceChange(from);
+        _gauge.handleBalanceChange(to);
     }
 
 }
