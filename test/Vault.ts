@@ -140,8 +140,9 @@ describe("Vault", function () {
       await weth.connect(user1).approve(await vault.getAddress(), 1n)
       await vault.connect(user1).deposit(1n, user1.address)
       expect(await gauge.left(await rewardToken.getAddress())).gt(0n)
-      await gauge.connect(user1).getAllRewards(user1.address)
-      await gauge.connect(user1).getReward(user1.address, [await rewardToken.getAddress()])
+      await gauge.connect(user1).setRewardsRedirect(user1.address, user2.address)
+      await gauge.connect(user2).getAllRewards(user1.address)
+      await gauge.connect(user2).getReward(user1.address, [await rewardToken.getAddress()])
       await gauge.connect(governance).removeRewardToken(await rewardToken2.getAddress())
       expect(await gauge.rewardTokensLength()).eq(0n)
     });

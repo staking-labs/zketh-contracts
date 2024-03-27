@@ -181,10 +181,10 @@ abstract contract StakelessPoolBase is ReentrancyGuard {
 
     /// @dev Account or governance can setup a redirect of all rewards.
     ///      It needs for 3rd party contracts integrations.
-    /*function setRewardsRedirect(address account, address recipient) external {
+    function setRewardsRedirect(address account, address recipient) external {
         require(msg.sender == account || msg.sender == governance, "Not allowed");
         rewardsRedirect[account] = recipient;
-    }*/
+    }
 
     // *************************************************************
     //                      BALANCE
@@ -248,10 +248,10 @@ abstract contract StakelessPoolBase is ReentrancyGuard {
         address[] memory rewardTokens_,
         address recipient
     ) internal nonReentrant virtual {
-        /*address newRecipient = rewardsRedirect[recipient];
+        address newRecipient = rewardsRedirect[recipient];
         if (newRecipient != address(0)) {
             recipient = newRecipient;
-        }*/
+        }
         require(recipient == msg.sender, "Not allowed");
 
         _updateDerivedBalance(account);
