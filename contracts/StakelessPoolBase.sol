@@ -3,11 +3,12 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "./interfaces/IGauge.sol";
 
 /// @title Simplified abstract stakeless pool for multiple rewards
 /// @author belbix
 /// @author a17
-abstract contract StakelessPoolBase is ReentrancyGuard {
+abstract contract StakelessPoolBase is IGauge, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     // *************************************************************

@@ -12,15 +12,21 @@ describe("Vault", function () {
 
     const weth = await (await ethers.getContractFactory("WETH9")).deploy()
     const switcher = await (await ethers.getContractFactory("Switcher")).deploy(governance.address)
-    const rewardToken = await (await ethers.getContractFactory("MockERC20")).deploy("DIVA premint receipt", "preDIVA", 18n)
+    const rewardToken = await (await ethers.getContractFactory("RewardToken")).deploy("DIVA premint receipt", "preDIVA", governance.address)
     const rewardToken2= await (await ethers.getContractFactory("MockERC20")).deploy("DIVA premint receipt 2", "preDIVA2", 18n)
     const gauge = await (await ethers.getContractFactory("Gauge")).deploy(await rewardToken.getAddress(), 86400n * 7n, governance.address)
     const vault = await (await ethers.getContractFactory("ZkETH")).deploy(await weth.getAddress(), await switcher.getAddress(), await gauge.getAddress())
 
-    await rewardToken.mint(parseUnits("1"))
-    await rewardToken.approve(await gauge.getAddress(), parseUnits("1"))
-    await gauge.notifyRewardAmount(await rewardToken.getAddress(), parseUnits("0.5"))
-    await gauge.notifyRewardAmount(await rewardToken.getAddress(), parseUnits("0.5"))
+    const rewarder = await (await ethers.getContractFactory("GaugeRewarder")).deploy(await gauge.getAddress(), await rewardToken.getAddress(), parseUnits("0.5"))
+    await rewardToken.connect(governance).setMinter(governance.address)
+    await rewardToken.connect(governance).mint(parseUnits("1"))
+    await rewardToken.connect(governance).setMinter(await rewarder.getAddress())
+
+    await rewarder.addRewards()
+
+    // add more rewards to trigger all gauge internal logic
+    await rewardToken.connect(governance).approve(await gauge.getAddress(), parseUnits("1"))
+    await gauge.connect(governance).notifyRewardAmount(await rewardToken.getAddress(), parseUnits("0.5"))
 
     return {
       vault,
@@ -33,6 +39,7 @@ describe("Vault", function () {
       gauge,
       rewardToken,
       rewardToken2,
+      rewarder,
     };
   }
 
@@ -68,7 +75,7 @@ describe("Vault", function () {
       expect(await switcher.totalAssets()).to.equal(0n);
     });
 
-    it("Deposits, withdrawals", async function () {
+    it("Deposits, withdrawals, gauge rewards", async function () {
       const {
         vault,
         switcher,
@@ -79,6 +86,7 @@ describe("Vault", function () {
         rewardToken,
         rewardToken2,
         governance,
+        rewarder,
       } = await loadFixture(deployVaultAndSwitcher);
 
       // fill test users accounts
@@ -118,7 +126,6 @@ describe("Vault", function () {
       await vault.connect(user1).transfer(user2.address, 1n);
       await vault.connect(user2).transfer(user1.address, 1n);
 
-
       // withdraw, defence
       await expect(vault.connect(user1).withdraw(amount1, user1.address, user1.address)).to.be.revertedWithCustomError(vault,'WaitAFewBlocks')
       await mine(2)
@@ -145,6 +152,7 @@ describe("Vault", function () {
       await gauge.connect(user2).getReward(user1.address, [await rewardToken.getAddress()])
       await gauge.connect(governance).removeRewardToken(await rewardToken2.getAddress())
       expect(await gauge.rewardTokensLength()).eq(0n)
+      await expect(rewarder.addRewards()).to.revertedWithCustomError(rewarder, "WaitFor")
     });
 
   });

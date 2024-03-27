@@ -8,7 +8,7 @@ import "./interfaces/IGauge.sol";
 /// @title Stakeless pool for vaults
 /// @author belbix
 /// @author a17
-contract Gauge is StakelessPoolBase, IGauge {
+contract Gauge is StakelessPoolBase {
     // *************************************************************
     //                        VARIABLES
     // *************************************************************
