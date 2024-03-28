@@ -153,6 +153,7 @@ describe("Vault", function () {
       await gauge.connect(governance).removeRewardToken(await rewardToken2.getAddress())
       expect(await gauge.rewardTokensLength()).eq(0n)
       await expect(rewarder.addRewards()).to.revertedWithCustomError(rewarder, "WaitFor")
+      await rewardToken.connect(governance).setFinished()
     });
 
   });

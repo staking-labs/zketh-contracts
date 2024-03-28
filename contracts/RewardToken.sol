@@ -10,17 +10,24 @@ contract RewardToken is ERC20, IRewardToken {
 
     address public minter;
 
+    bool public finished;
+
     constructor(string memory name_, string memory symbol_, address governance_) ERC20(name_, symbol_) {
         governance = governance_;
     }
 
     function setMinter(address minter_) external {
-        require(msg.sender == governance);
+        require(msg.sender == governance && !finished);
         minter = minter_;
     }
 
+    function setFinished() external {
+        require(msg.sender == governance);
+        finished = true;
+    }
+
     function mint(uint amount) external {
-        require(msg.sender == minter);
+        require(msg.sender == minter && !finished);
         _mint(msg.sender, amount);
     }
 
