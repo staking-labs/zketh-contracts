@@ -1,3 +1,4 @@
 export class CardonaAddresses {
   static POLYGON_ZKEVM_BRIDGE_V2 = "0x528e26b25a34a4A5d0dbDa1d57D318153d2ED582"
+  static STRATEGY = "0x3C888C84511f4C0a4F3Ea5eD1a16ad7F6514077e"
 }

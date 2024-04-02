@@ -17,6 +17,8 @@ const config: HardhatUserConfig = {
     deployer: 0,
     governance: {
       hardhat: 0,
+      cardona: 0,
+      sepolia: 0,
     },
     weth: {
       hardhat: ZeroAddress,
@@ -42,10 +44,24 @@ const config: HardhatUserConfig = {
       sepolia: ZeroAddress,
       ethereum: EthAddresses.ENZYME_DEPOSIT_WRAPPER,
     },
+    strategyL2: {
+      hardhat: ZeroAddress,
+      sepolia: CardonaAddresses.STRATEGY,
+    },
   },
   networks: {
     hardhat: {
       loggingEnabled: argv.loggingEnabled,
+    },
+    cardona: {
+      chainId: 2442,
+      url: "https://rpc.cardona.zkevm-rpc.com",
+      accounts: [argv.privateKey],
+    },
+    sepolia: {
+      chainId: 11155111,
+      url: "https://rpc2.sepolia.org",
+      accounts: [argv.privateKey],
     },
   },
   solidity: {

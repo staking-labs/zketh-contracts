@@ -1,0 +1,310 @@
+{
+  "address": "0x3C888C84511f4C0a4F3Ea5eD1a16ad7F6514077e",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "bridge_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "comptroller_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "depositWrapper_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "strategyL2_",
+          "type": "address"
+        },
+        {
+          "internalType": "uint24",
+          "name": "id_",
+          "type": "uint24"
+        },
+        {
+          "internalType": "uint24",
+          "name": "idL2_",
+          "type": "uint24"
+        },
+        {
+          "internalType": "address",
+          "name": "weth_",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "ClaimByThisContractOnly",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "gotEther",
+          "type": "uint256"
+        }
+      ],
+      "name": "ClaimRedemption",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "bridge",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "comptroller",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "depositWrapper",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "strategyL2",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint24",
+          "name": "id",
+          "type": "uint24"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "idL2",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "weth",
+          "type": "address"
+        }
+      ],
+      "name": "Setup",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "bridge",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32[32]",
+          "name": "smtProofLocalExitRoot",
+          "type": "bytes32[32]"
+        },
+        {
+          "internalType": "bytes32[32]",
+          "name": "smtProofRollupExitRoot",
+          "type": "bytes32[32]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "globalIndex",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "mainnetExitRoot",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "rollupExitRoot",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "metadata",
+          "type": "bytes"
+        }
+      ],
+      "name": "claimMessage",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "comptroller",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "depositWrapper",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "onMessageReceived",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "strategyL2",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ],
+  "transactionHash": "0x977ac642d77d61c2822069ac32a0916b52465c168e23c139d339a08c73fc892c",
+  "receipt": {
+    "to": null,
+    "from": "0x3d0c177E035C30bb8681e5859EB98d114b48b935",
+    "contractAddress": "0x3C888C84511f4C0a4F3Ea5eD1a16ad7F6514077e",
+    "transactionIndex": 33,
+    "gasUsed": "737990",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000000000000800040000000000000",
+    "blockHash": "0x2e6dcbf47fa3025b832f23aa792407bdf6697ddfefaac8981c9a7a03ba0dbcba",
+    "transactionHash": "0x977ac642d77d61c2822069ac32a0916b52465c168e23c139d339a08c73fc892c",
+    "logs": [
+      {
+        "transactionIndex": 33,
+        "blockNumber": 5614541,
+        "transactionHash": "0x977ac642d77d61c2822069ac32a0916b52465c168e23c139d339a08c73fc892c",
+        "address": "0x3C888C84511f4C0a4F3Ea5eD1a16ad7F6514077e",
+        "topics": [
+          "0xe44a18fa548f2d5b60195fc3b72cc4a845bf6b0c8dc7e858d91047be5bcc23bc"
+        ],
+        "data": "0x000000000000000000000000528e26b25a34a4a5d0dbda1d57d318153d2ed58200000000000000000000000002af36760dedf3a2ac3fa7f5af072b9adaf3f504000000000000000000000000eb529553bc75377d8a47f2367881d4e854a560e70000000000000000000000003c888c84511f4c0a4f3ea5ed1a16ad7f6514077e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000e0d142466d1bf88fe23d5d265d76068077e4d6f0",
+        "logIndex": 42,
+        "blockHash": "0x2e6dcbf47fa3025b832f23aa792407bdf6697ddfefaac8981c9a7a03ba0dbcba"
+      }
+    ],
+    "blockNumber": 5614541,
+    "cumulativeGasUsed": "4107918",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x528e26b25a34a4A5d0dbDa1d57D318153d2ED582",
+    "0x02Af36760deDf3a2ac3Fa7f5af072b9aDaf3F504",
+    "0xEB529553Bc75377d8A47F2367881D4e854a560e7",
+    "0x3C888C84511f4C0a4F3Ea5eD1a16ad7F6514077e",
+    0,
+    1,
+    "0xE0D142466d1BF88FE23D5D265d76068077E4D6F0"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "cd9d925b63ac700938c46a08eefd7125",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.24+commit.e11b9ed9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"bridge_\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"comptroller_\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"depositWrapper_\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"strategyL2_\",\"type\":\"address\"},{\"internalType\":\"uint24\",\"name\":\"id_\",\"type\":\"uint24\"},{\"internalType\":\"uint24\",\"name\":\"idL2_\",\"type\":\"uint24\"},{\"internalType\":\"address\",\"name\":\"weth_\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"ClaimByThisContractOnly\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"gotEther\",\"type\":\"uint256\"}],\"name\":\"ClaimRedemption\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"bridge\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"comptroller\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"depositWrapper\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"strategyL2\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint24\",\"name\":\"id\",\"type\":\"uint24\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"idL2\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"weth\",\"type\":\"address\"}],\"name\":\"Setup\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"bridge\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32[32]\",\"name\":\"smtProofLocalExitRoot\",\"type\":\"bytes32[32]\"},{\"internalType\":\"bytes32[32]\",\"name\":\"smtProofRollupExitRoot\",\"type\":\"bytes32[32]\"},{\"internalType\":\"uint256\",\"name\":\"globalIndex\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"mainnetExitRoot\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"rollupExitRoot\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"metadata\",\"type\":\"bytes\"}],\"name\":\"claimMessage\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"comptroller\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"depositWrapper\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onMessageReceived\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"strategyL2\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"author\":\"a17\",\"kind\":\"dev\",\"methods\":{},\"title\":\"Stake bridged ETH to Enzyme Diva Early Staker Vault\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/EnzymeStaker.sol\":\"EnzymeStaker\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":150},\"remappings\":[]},\"sources\":{\"@0xpolygonhermez/zkevm-contracts/contracts/interfaces/IBasePolygonZkEVMGlobalExitRoot.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\n\\npragma solidity ^0.8.20;\\n\\ninterface IBasePolygonZkEVMGlobalExitRoot {\\n    /**\\n     * @dev Thrown when the caller is not the allowed contracts\\n     */\\n    error OnlyAllowedContracts();\\n\\n    function updateExitRoot(bytes32 newRollupExitRoot) external;\\n\\n    function globalExitRootMap(\\n        bytes32 globalExitRootNum\\n    ) external returns (uint256);\\n}\\n\",\"keccak256\":\"0x11812b6c81c5d9812bdf7061259a19f256787cac6e5e10d16e70e7dcfb3fb162\",\"license\":\"AGPL-3.0\"},\"@0xpolygonhermez/zkevm-contracts/contracts/interfaces/IBridgeMessageReceiver.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Define interface for PolygonZkEVM Bridge message receiver\\n */\\ninterface IBridgeMessageReceiver {\\n    function onMessageReceived(\\n        address originAddress,\\n        uint32 originNetwork,\\n        bytes memory data\\n    ) external payable;\\n}\\n\",\"keccak256\":\"0x0903661a6226549f4238d79d98615f7d2ec0a907869d6a44bff3cdef110e51e0\",\"license\":\"AGPL-3.0\"},\"@0xpolygonhermez/zkevm-contracts/contracts/v2/interfaces/IPolygonZkEVMBridgeV2.sol\":{\"content\":\"// SPDX-License-Identifier: AGPL-3.0\\n\\npragma solidity ^0.8.20;\\nimport \\\"../../interfaces/IBasePolygonZkEVMGlobalExitRoot.sol\\\";\\n\\ninterface IPolygonZkEVMBridgeV2 {\\n    /**\\n     * @dev Thrown when the destination network is invalid\\n     */\\n    error DestinationNetworkInvalid();\\n\\n    /**\\n     * @dev Thrown when the amount does not match msg.value\\n     */\\n    error AmountDoesNotMatchMsgValue();\\n\\n    /**\\n     * @dev Thrown when user is bridging tokens and is also sending a value\\n     */\\n    error MsgValueNotZero();\\n\\n    /**\\n     * @dev Thrown when the Ether transfer on claimAsset fails\\n     */\\n    error EtherTransferFailed();\\n\\n    /**\\n     * @dev Thrown when the message transaction on claimMessage fails\\n     */\\n    error MessageFailed();\\n\\n    /**\\n     * @dev Thrown when the global exit root does not exist\\n     */\\n    error GlobalExitRootInvalid();\\n\\n    /**\\n     * @dev Thrown when the smt proof does not match\\n     */\\n    error InvalidSmtProof();\\n\\n    /**\\n     * @dev Thrown when an index is already claimed\\n     */\\n    error AlreadyClaimed();\\n\\n    /**\\n     * @dev Thrown when the owner of permit does not match the sender\\n     */\\n    error NotValidOwner();\\n\\n    /**\\n     * @dev Thrown when the spender of the permit does not match this contract address\\n     */\\n    error NotValidSpender();\\n\\n    /**\\n     * @dev Thrown when the amount of the permit does not match\\n     */\\n    error NotValidAmount();\\n\\n    /**\\n     * @dev Thrown when the permit data contains an invalid signature\\n     */\\n    error NotValidSignature();\\n\\n    /**\\n     * @dev Thrown when sender is not the rollup manager\\n     */\\n    error OnlyRollupManager();\\n\\n    /**\\n     * @dev Thrown when the permit data contains an invalid signature\\n     */\\n    error NativeTokenIsEther();\\n\\n    /**\\n     * @dev Thrown when the permit data contains an invalid signature\\n     */\\n    error NoValueInMessagesOnGasTokenNetworks();\\n\\n    /**\\n     * @dev Thrown when the permit data contains an invalid signature\\n     */\\n    error GasTokenNetworkMustBeZeroOnEther();\\n\\n    /**\\n     * @dev Thrown when the wrapped token deployment fails\\n     */\\n    error FailedTokenWrappedDeployment();\\n\\n    function wrappedTokenToTokenInfo(\\n        address destinationAddress\\n    ) external view returns (uint32, address);\\n\\n    function updateGlobalExitRoot() external;\\n\\n    function activateEmergencyState() external;\\n\\n    function deactivateEmergencyState() external;\\n\\n    function bridgeAsset(\\n        uint32 destinationNetwork,\\n        address destinationAddress,\\n        uint256 amount,\\n        address token,\\n        bool forceUpdateGlobalExitRoot,\\n        bytes calldata permitData\\n    ) external payable;\\n\\n    function bridgeMessage(\\n        uint32 destinationNetwork,\\n        address destinationAddress,\\n        bool forceUpdateGlobalExitRoot,\\n        bytes calldata metadata\\n    ) external payable;\\n\\n    function bridgeMessageWETH(\\n        uint32 destinationNetwork,\\n        address destinationAddress,\\n        uint256 amountWETH,\\n        bool forceUpdateGlobalExitRoot,\\n        bytes calldata metadata\\n    ) external;\\n\\n    function claimAsset(\\n        bytes32[32] calldata smtProofLocalExitRoot,\\n        bytes32[32] calldata smtProofRollupExitRoot,\\n        uint256 globalIndex,\\n        bytes32 mainnetExitRoot,\\n        bytes32 rollupExitRoot,\\n        uint32 originNetwork,\\n        address originTokenAddress,\\n        uint32 destinationNetwork,\\n        address destinationAddress,\\n        uint256 amount,\\n        bytes calldata metadata\\n    ) external;\\n\\n    function claimMessage(\\n        bytes32[32] calldata smtProofLocalExitRoot,\\n        bytes32[32] calldata smtProofRollupExitRoot,\\n        uint256 globalIndex,\\n        bytes32 mainnetExitRoot,\\n        bytes32 rollupExitRoot,\\n        uint32 originNetwork,\\n        address originAddress,\\n        uint32 destinationNetwork,\\n        address destinationAddress,\\n        uint256 amount,\\n        bytes calldata metadata\\n    ) external;\\n\\n    function initialize(\\n        uint32 _networkID,\\n        address _gasTokenAddress,\\n        uint32 _gasTokenNetwork,\\n        IBasePolygonZkEVMGlobalExitRoot _globalExitRootManager,\\n        address _polygonRollupManager,\\n        bytes memory _gasTokenMetadata\\n    ) external;\\n\\n    function getTokenMetadata(\\n        address token\\n    ) external view returns (bytes memory);\\n}\\n\",\"keccak256\":\"0x06203f66d0bd221e534be317664b0178cd8f706bb809008c6dbcc603111f404c\",\"license\":\"AGPL-3.0\"},\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the value of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the value of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 value) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the\\n     * caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 value) external returns (bool);\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from `from` to `to` using the\\n     * allowance mechanism. `value` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(address from, address to, uint256 value) external returns (bool);\\n}\\n\",\"keccak256\":\"0xc6a8ff0ea489379b61faa647490411b80102578440ab9d84e9a957cc12164e70\",\"license\":\"MIT\"},\"contracts/EnzymeStaker.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity ^0.8.24;\\r\\n\\r\\nimport \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\r\\nimport \\\"@0xpolygonhermez/zkevm-contracts/contracts/v2/interfaces/IPolygonZkEVMBridgeV2.sol\\\";\\r\\nimport \\\"@0xpolygonhermez/zkevm-contracts/contracts/interfaces/IBridgeMessageReceiver.sol\\\";\\r\\nimport \\\"./interfaces/IDepositWrapper.sol\\\";\\r\\nimport \\\"./interfaces/IComptroller.sol\\\";\\r\\nimport \\\"./interfaces/IWETH9.sol\\\";\\r\\n\\r\\n/// @title Stake bridged ETH to Enzyme Diva Early Staker Vault\\r\\n/// @author a17\\r\\ncontract EnzymeStaker is IBridgeMessageReceiver {\\r\\n    address public immutable bridge;\\r\\n\\r\\n    address public immutable depositWrapper;\\r\\n\\r\\n    address public immutable comptroller;\\r\\n\\r\\n    address public immutable strategyL2;\\r\\n\\r\\n    uint24 internal immutable id;\\r\\n\\r\\n    uint32 internal immutable idL2;\\r\\n\\r\\n    address internal immutable weth;\\r\\n\\r\\n    bool internal isClaiming;\\r\\n\\r\\n    error ClaimByThisContractOnly();\\r\\n\\r\\n    event Setup(address bridge, address comptroller, address depositWrapper, address strategyL2, uint24 id, uint32 idL2, address weth);\\r\\n    event ClaimRedemption(uint amount, uint gotEther);\\r\\n\\r\\n    constructor(address bridge_, address comptroller_, address depositWrapper_, address strategyL2_, uint24 id_, uint24 idL2_, address weth_) {\\r\\n        bridge = bridge_;\\r\\n        depositWrapper = depositWrapper_;\\r\\n        comptroller = comptroller_;\\r\\n        strategyL2 = strategyL2_;\\r\\n        id = id_;\\r\\n        idL2 = idL2_;\\r\\n        weth = weth_;\\r\\n\\r\\n        emit Setup(bridge_, comptroller_, depositWrapper_, strategyL2_, id_, idL2_, weth_);\\r\\n    }\\r\\n\\r\\n    receive() external payable {\\r\\n        if (bridge == msg.sender) {\\r\\n            IDepositWrapper(depositWrapper).exchangeEthAndBuyShares{value: msg.value}(\\r\\n                comptroller,\\r\\n                1,\\r\\n                address(0),\\r\\n                address(0),\\r\\n                \\\"\\\",\\r\\n                0\\r\\n            );\\r\\n        }\\r\\n    }\\r\\n\\r\\n    function onMessageReceived(\\r\\n        address,\\r\\n        uint32,\\r\\n        bytes memory\\r\\n    ) external payable {\\r\\n        if (!isClaiming) {\\r\\n            revert ClaimByThisContractOnly();\\r\\n        }\\r\\n    }\\r\\n\\r\\n    function claimMessage(\\r\\n        bytes32[32] calldata smtProofLocalExitRoot,\\r\\n        bytes32[32] calldata smtProofRollupExitRoot,\\r\\n        uint globalIndex,\\r\\n        bytes32 mainnetExitRoot,\\r\\n        bytes32 rollupExitRoot,\\r\\n        bytes calldata metadata\\r\\n    ) external {\\r\\n        isClaiming = true;\\r\\n        IPolygonZkEVMBridgeV2(bridge).claimMessage(\\r\\n            smtProofLocalExitRoot,\\r\\n            smtProofRollupExitRoot,\\r\\n            globalIndex,\\r\\n            mainnetExitRoot,\\r\\n            rollupExitRoot,\\r\\n            idL2,\\r\\n            strategyL2,\\r\\n            id,\\r\\n            address(this),\\r\\n            0,\\r\\n            metadata\\r\\n        );\\r\\n        isClaiming = false;\\r\\n\\r\\n        uint amount = _toUint(metadata, 0);\\r\\n\\r\\n        IComptroller(comptroller).redeemSharesInKind(\\r\\n            address(this),\\r\\n            amount,\\r\\n            new address[](0),\\r\\n            new address[](0)\\r\\n        );\\r\\n\\r\\n        address _weth = weth;\\r\\n\\r\\n        uint balance = IERC20(_weth).balanceOf(address(this));\\r\\n        IWETH9(_weth).withdraw(balance);\\r\\n\\r\\n        IPolygonZkEVMBridgeV2(bridge).bridgeAsset{value: balance}(\\r\\n            idL2,\\r\\n            strategyL2,\\r\\n            balance,\\r\\n            address(0),\\r\\n            true,\\r\\n            bytes(\\\"0\\\")\\r\\n        );\\r\\n\\r\\n        emit ClaimRedemption(amount, balance);\\r\\n    }\\r\\n\\r\\n    function _toUint(bytes memory _bytes, uint _start) internal pure returns (uint out) {\\r\\n        assembly {\\r\\n            out := mload(add(add(_bytes, 0x20), _start))\\r\\n        }\\r\\n    }\\r\\n\\r\\n}\\r\\n\",\"keccak256\":\"0x10a5520e604e6b9cae7fce5bc7d83a9219244822ede9d2820334992284c53fcd\",\"license\":\"MIT\"},\"contracts/interfaces/IComptroller.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity ^0.8.24;\\r\\n\\r\\ninterface IComptroller {\\r\\n    /// @notice Redeems a specified amount of the sender's shares\\r\\n    /// for a proportionate slice of the vault's assets\\r\\n    /// @param _recipient The account that will receive the proportionate slice of assets\\r\\n    /// @param _sharesQuantity The quantity of shares to redeem\\r\\n    /// @param _additionalAssets Additional (non-tracked) assets to claim\\r\\n    /// @param _assetsToSkip Tracked assets to forfeit\\r\\n    /// @return payoutAssets_ The assets paid out to the _recipient\\r\\n    /// @return payoutAmounts_ The amount of each asset paid out to the _recipient\\r\\n    /// @dev Redeem all shares of the sender by setting _sharesQuantity to the max uint value.\\r\\n    /// Any claim to passed _assetsToSkip will be forfeited entirely. This should generally\\r\\n    /// only be exercised if a bad asset is causing redemption to fail.\\r\\n    /// This function should never fail without a way to bypass the failure, which is assured\\r\\n    /// through two mechanisms:\\r\\n    /// 1. The FeeManager is called with the try/catch pattern to assure that calls to it\\r\\n    /// can never block redemption.\\r\\n    /// 2. If a token fails upon transfer(), that token can be skipped (and its balance forfeited)\\r\\n    /// by explicitly specifying _assetsToSkip.\\r\\n    /// Because of these assurances, shares should always be redeemable, with the exception\\r\\n    /// of the timelock period on shares actions that must be respected.\\r\\n    function redeemSharesInKind(\\r\\n        address _recipient,\\r\\n        uint256 _sharesQuantity,\\r\\n        address[] calldata _additionalAssets,\\r\\n        address[] calldata _assetsToSkip\\r\\n    ) external returns (address[] memory payoutAssets_, uint256[] memory payoutAmounts_);\\r\\n\\r\\n}\\r\\n\",\"keccak256\":\"0x30f16c8721a2bb390f35e2d6cec30ce2b1a6cdf79f39702a4d5c9ffeabc98c36\",\"license\":\"MIT\"},\"contracts/interfaces/IDepositWrapper.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity ^0.8.24;\\r\\n\\r\\ninterface IDepositWrapper {\\r\\n    /// @notice Exchanges ETH into a fund's denomination asset and then buys shares\\r\\n    /// @param _comptrollerProxy The ComptrollerProxy of the fund\\r\\n    /// @param _minSharesQuantity The minimum quantity of shares to buy with the sent ETH\\r\\n    /// @param _exchange The exchange on which to execute the swap to the denomination asset\\r\\n    /// @param _exchangeApproveTarget The address that should be given an allowance of WETH\\r\\n    /// for the given _exchange\\r\\n    /// @param _exchangeData The data with which to call the exchange to execute the swap\\r\\n    /// to the denomination asset\\r\\n    /// @param _exchangeMinReceived The minimum amount of the denomination asset\\r\\n    /// to receive in the trade for investment (not necessary for WETH)\\r\\n    /// @return sharesReceived_ The actual amount of shares received\\r\\n    /// @dev Use a reasonable _exchangeMinReceived always, in case the exchange\\r\\n    /// does not perform as expected (low incoming asset amount, blend of assets, etc).\\r\\n    /// If the fund's denomination asset is WETH, _exchange, _exchangeApproveTarget, _exchangeData,\\r\\n    /// and _exchangeMinReceived will be ignored.\\r\\n    function exchangeEthAndBuyShares(\\r\\n        address _comptrollerProxy,\\r\\n        uint _minSharesQuantity,\\r\\n        address _exchange,\\r\\n        address _exchangeApproveTarget,\\r\\n        bytes calldata _exchangeData,\\r\\n        uint _exchangeMinReceived\\r\\n    ) external payable returns (uint sharesReceived_);\\r\\n\\r\\n}\\r\\n\",\"keccak256\":\"0xbccde1b47559f710564437c05f0c3cc519e8fd37ecc1f81b90fcfca20face282\",\"license\":\"MIT\"},\"contracts/interfaces/IWETH9.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity ^0.8.24;\\r\\n\\r\\ninterface IWETH9 {\\r\\n    function deposit() external payable;\\r\\n\\r\\n    function withdraw(uint wad) external;\\r\\n}\",\"keccak256\":\"0x1c89c0632e2c924f2b8b032cb3e0d91af4b47c28e4d5ddec8d9208fd24b1e5e5\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x6101606040523480156200001257600080fd5b5060405162000e7c38038062000e7c833981016040819052620000359162000113565b6001600160a01b03878116608081815287831660a08181528a851660c08181528a871660e081815262ffffff8c8116610100819052908c16610120819052998b16610140819052604080519a8b5260208b0196909652898601979097526060890192909252958701529185019590955283015291517fe44a18fa548f2d5b60195fc3b72cc4a845bf6b0c8dc7e858d91047be5bcc23bc929181900390910190a150505050505050620001a8565b80516001600160a01b0381168114620000fa57600080fd5b919050565b805162ffffff81168114620000fa57600080fd5b600080600080600080600060e0888a0312156200012f57600080fd5b6200013a88620000e2565b96506200014a60208901620000e2565b95506200015a60408901620000e2565b94506200016a60608901620000e2565b93506200017a60808901620000ff565b92506200018a60a08901620000ff565b91506200019a60c08901620000e2565b905092959891949750929550565b60805160a05160c05160e051610100516101205161014051610c3d6200023f60003960006104ed015260008181610311015261061f015260006103550152600081816101e401528181610333015261064101526000818160a501528181610194015261040a01526000818160f7015261023801526000818160610152818161026c015281816102da01526105ee0152610c3d6000f3fe6080604052600436106100595760003560e01c80631806b5f21461016f5780635fe3b5671461018257806390ebccc8146101d2578063bd99690414610206578063dc46b4fb14610226578063e78cea921461025a57600080fd5b3661016a57337f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03160361016857604051639a98f01b60e01b81526001600160a01b037f000000000000000000000000000000000000000000000000000000000000000081166004830152600160248301526000604483018190526064830181905260c0608484015260c4830181905260a48301527f00000000000000000000000000000000000000000000000000000000000000001690639a98f01b90349060e40160206040518083038185885af1158015610141573d6000803e3d6000fd5b50505050506040513d601f19601f8201168201806040525081019061016691906106f4565b505b005b600080fd5b61016861017d36600461076c565b61028e565b34801561018e57600080fd5b506101b67f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200160405180910390f35b3480156101de57600080fd5b506101b67f000000000000000000000000000000000000000000000000000000000000000081565b34801561021257600080fd5b50610168610221366004610847565b6102b6565b34801561023257600080fd5b506101b67f000000000000000000000000000000000000000000000000000000000000000081565b34801561026657600080fd5b506101b67f000000000000000000000000000000000000000000000000000000000000000081565b60005460ff166102b15760405163bb630ce360e01b815260040160405180910390fd5b505050565b6000805460ff1916600117815560405163f5efcd7960e01b81526001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000169163f5efcd7991610383918b918b918b918b918b917f0000000000000000000000000000000000000000000000000000000000000000917f0000000000000000000000000000000000000000000000000000000000000000917f00000000000000000000000000000000000000000000000000000000000000009130918f908f90600401610900565b600060405180830381600087803b15801561039d57600080fd5b505af11580156103b1573d6000803e3d6000fd5b50506000805460ff19168155604080516020601f87018190048102820181019092528581529193506103fe92508590859081908401838280828437600092018290525092506106ec915050565b90506001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016636af8e7eb3083600060405190808252806020026020018201604052801561045c578160200160208202803683370190505b50604080516000815260208101918290526001600160e01b031960e087901b1690915261048f93929190602481016109e4565b6000604051808303816000875af11580156104ae573d6000803e3d6000fd5b505050506040513d6000823e601f3d908101601f191682016040526104d69190810190610abb565b50506040516370a0823160e01b81523060048201527f0000000000000000000000000000000000000000000000000000000000000000906000906001600160a01b038316906370a0823190602401602060405180830381865afa158015610541573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061056591906106f4565b604051632e1a7d4d60e01b8152600481018290529091506001600160a01b03831690632e1a7d4d90602401600060405180830381600087803b1580156105aa57600080fd5b505af11580156105be573d6000803e3d6000fd5b50506040805180820182526001808252600360fc1b6020830152915163cd58657960e01b81526001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016945063cd5865799350859261066e927f0000000000000000000000000000000000000000000000000000000000000000927f0000000000000000000000000000000000000000000000000000000000000000928692600092600401610b80565b6000604051808303818588803b15801561068757600080fd5b505af115801561069b573d6000803e3d6000fd5b505060408051878152602081018690527f490e27a76b7bdee03819a8ae6a21f25638992aceef286902fd4b799d2b18ae4b94500191506106d89050565b60405180910390a150505050505050505050565b016020015190565b60006020828403121561070657600080fd5b5051919050565b6001600160a01b038116811461072257600080fd5b50565b634e487b7160e01b600052604160045260246000fd5b604051601f8201601f1916810167ffffffffffffffff8111828210171561076457610764610725565b604052919050565b60008060006060848603121561078157600080fd5b833561078c8161070d565b925060208481013563ffffffff811681146107a657600080fd5b9250604085013567ffffffffffffffff808211156107c357600080fd5b818701915087601f8301126107d757600080fd5b8135818111156107e9576107e9610725565b6107fb601f8201601f1916850161073b565b9150808252888482850101111561081157600080fd5b80848401858401376000848284010152508093505050509250925092565b80610400810183101561084157600080fd5b92915050565b6000806000806000806000610880888a03121561086357600080fd5b61086d898961082f565b965061087d896104008a0161082f565b955061080088013594506108208801359350610840880135925061086088013567ffffffffffffffff808211156108b357600080fd5b818a0191508a601f8301126108c757600080fd5b8135818111156108d657600080fd5b8b60208285010111156108e857600080fd5b60208301945080935050505092959891949750929550565b6000610400808f8437808e82850137508b6108008301528a6108208301528961084083015263ffffffff891661086083015260018060a01b0380891661088084015262ffffff88166108a08401528087166108c084015250846108e0830152610920610900830152826109208301526109408385828501376000838501820152601f909301601f19169091019091019c9b505050505050505050505050565b60008151808452602080850194506020840160005b838110156109d95781516001600160a01b0316875295820195908201906001016109b4565b509495945050505050565b60018060a01b0385168152836020820152608060408201526000610a0b608083018561099f565b8281036060840152610a1d818561099f565b979650505050505050565b600067ffffffffffffffff821115610a4257610a42610725565b5060051b60200190565b600082601f830112610a5d57600080fd5b81516020610a72610a6d83610a28565b61073b565b8083825260208201915060208460051b870101935086841115610a9457600080fd5b602086015b84811015610ab05780518352918301918301610a99565b509695505050505050565b60008060408385031215610ace57600080fd5b825167ffffffffffffffff80821115610ae657600080fd5b818501915085601f830112610afa57600080fd5b81516020610b0a610a6d83610a28565b82815260059290921b84018101918181019089841115610b2957600080fd5b948201945b83861015610b50578551610b418161070d565b82529482019490820190610b2e565b91880151919650909350505080821115610b6957600080fd5b50610b7685828601610a4c565b9150509250929050565b63ffffffff871681526000602060018060a01b038089166020850152876040850152808716606085015250841515608084015260c060a084015283518060c085015260005b81811015610be15785810183015185820160e001528201610bc5565b50600060e0828601015260e0601f19601f8301168501019250505097965050505050505056fea2646970667358221220ed55e58940ad3086f4b9b937b4b5f8ea79d8b4ea56254471bcdb31cb977b0b1b64736f6c63430008180033",
+  "deployedBytecode": "0x6080604052600436106100595760003560e01c80631806b5f21461016f5780635fe3b5671461018257806390ebccc8146101d2578063bd99690414610206578063dc46b4fb14610226578063e78cea921461025a57600080fd5b3661016a57337f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03160361016857604051639a98f01b60e01b81526001600160a01b037f000000000000000000000000000000000000000000000000000000000000000081166004830152600160248301526000604483018190526064830181905260c0608484015260c4830181905260a48301527f00000000000000000000000000000000000000000000000000000000000000001690639a98f01b90349060e40160206040518083038185885af1158015610141573d6000803e3d6000fd5b50505050506040513d601f19601f8201168201806040525081019061016691906106f4565b505b005b600080fd5b61016861017d36600461076c565b61028e565b34801561018e57600080fd5b506101b67f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200160405180910390f35b3480156101de57600080fd5b506101b67f000000000000000000000000000000000000000000000000000000000000000081565b34801561021257600080fd5b50610168610221366004610847565b6102b6565b34801561023257600080fd5b506101b67f000000000000000000000000000000000000000000000000000000000000000081565b34801561026657600080fd5b506101b67f000000000000000000000000000000000000000000000000000000000000000081565b60005460ff166102b15760405163bb630ce360e01b815260040160405180910390fd5b505050565b6000805460ff1916600117815560405163f5efcd7960e01b81526001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000169163f5efcd7991610383918b918b918b918b918b917f0000000000000000000000000000000000000000000000000000000000000000917f0000000000000000000000000000000000000000000000000000000000000000917f00000000000000000000000000000000000000000000000000000000000000009130918f908f90600401610900565b600060405180830381600087803b15801561039d57600080fd5b505af11580156103b1573d6000803e3d6000fd5b50506000805460ff19168155604080516020601f87018190048102820181019092528581529193506103fe92508590859081908401838280828437600092018290525092506106ec915050565b90506001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016636af8e7eb3083600060405190808252806020026020018201604052801561045c578160200160208202803683370190505b50604080516000815260208101918290526001600160e01b031960e087901b1690915261048f93929190602481016109e4565b6000604051808303816000875af11580156104ae573d6000803e3d6000fd5b505050506040513d6000823e601f3d908101601f191682016040526104d69190810190610abb565b50506040516370a0823160e01b81523060048201527f0000000000000000000000000000000000000000000000000000000000000000906000906001600160a01b038316906370a0823190602401602060405180830381865afa158015610541573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061056591906106f4565b604051632e1a7d4d60e01b8152600481018290529091506001600160a01b03831690632e1a7d4d90602401600060405180830381600087803b1580156105aa57600080fd5b505af11580156105be573d6000803e3d6000fd5b50506040805180820182526001808252600360fc1b6020830152915163cd58657960e01b81526001600160a01b037f000000000000000000000000000000000000000000000000000000000000000016945063cd5865799350859261066e927f0000000000000000000000000000000000000000000000000000000000000000927f0000000000000000000000000000000000000000000000000000000000000000928692600092600401610b80565b6000604051808303818588803b15801561068757600080fd5b505af115801561069b573d6000803e3d6000fd5b505060408051878152602081018690527f490e27a76b7bdee03819a8ae6a21f25638992aceef286902fd4b799d2b18ae4b94500191506106d89050565b60405180910390a150505050505050505050565b016020015190565b60006020828403121561070657600080fd5b5051919050565b6001600160a01b038116811461072257600080fd5b50565b634e487b7160e01b600052604160045260246000fd5b604051601f8201601f1916810167ffffffffffffffff8111828210171561076457610764610725565b604052919050565b60008060006060848603121561078157600080fd5b833561078c8161070d565b925060208481013563ffffffff811681146107a657600080fd5b9250604085013567ffffffffffffffff808211156107c357600080fd5b818701915087601f8301126107d757600080fd5b8135818111156107e9576107e9610725565b6107fb601f8201601f1916850161073b565b9150808252888482850101111561081157600080fd5b80848401858401376000848284010152508093505050509250925092565b80610400810183101561084157600080fd5b92915050565b6000806000806000806000610880888a03121561086357600080fd5b61086d898961082f565b965061087d896104008a0161082f565b955061080088013594506108208801359350610840880135925061086088013567ffffffffffffffff808211156108b357600080fd5b818a0191508a601f8301126108c757600080fd5b8135818111156108d657600080fd5b8b60208285010111156108e857600080fd5b60208301945080935050505092959891949750929550565b6000610400808f8437808e82850137508b6108008301528a6108208301528961084083015263ffffffff891661086083015260018060a01b0380891661088084015262ffffff88166108a08401528087166108c084015250846108e0830152610920610900830152826109208301526109408385828501376000838501820152601f909301601f19169091019091019c9b505050505050505050505050565b60008151808452602080850194506020840160005b838110156109d95781516001600160a01b0316875295820195908201906001016109b4565b509495945050505050565b60018060a01b0385168152836020820152608060408201526000610a0b608083018561099f565b8281036060840152610a1d818561099f565b979650505050505050565b600067ffffffffffffffff821115610a4257610a42610725565b5060051b60200190565b600082601f830112610a5d57600080fd5b81516020610a72610a6d83610a28565b61073b565b8083825260208201915060208460051b870101935086841115610a9457600080fd5b602086015b84811015610ab05780518352918301918301610a99565b509695505050505050565b60008060408385031215610ace57600080fd5b825167ffffffffffffffff80821115610ae657600080fd5b818501915085601f830112610afa57600080fd5b81516020610b0a610a6d83610a28565b82815260059290921b84018101918181019089841115610b2957600080fd5b948201945b83861015610b50578551610b418161070d565b82529482019490820190610b2e565b91880151919650909350505080821115610b6957600080fd5b50610b7685828601610a4c565b9150509250929050565b63ffffffff871681526000602060018060a01b038089166020850152876040850152808716606085015250841515608084015260c060a084015283518060c085015260005b81811015610be15785810183015185820160e001528201610bc5565b50600060e0828601015260e0601f19601f8301168501019250505097965050505050505056fea2646970667358221220ed55e58940ad3086f4b9b937b4b5f8ea79d8b4ea56254471bcdb31cb977b0b1b64736f6c63430008180033",
+  "devdoc": {
+    "author": "a17",
+    "kind": "dev",
+    "methods": {},
+    "title": "Stake bridged ETH to Enzyme Diva Early Staker Vault",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 5731,
+        "contract": "contracts/EnzymeStaker.sol:EnzymeStaker",
+        "label": "isClaiming",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_bool"
+      }
+    ],
+    "types": {
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      }
+    }
+  }
+}

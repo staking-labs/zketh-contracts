@@ -22,5 +22,8 @@ export function getEnv() {
         type: 'number',
         default: 19482432,
       },
+      privateKey: {
+        type: 'string',
+      },
     }).argv;
 }

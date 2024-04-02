@@ -1,6 +1,5 @@
 import { DeployFunction } from 'hardhat-deploy/dist/types';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import {getDeployedContractByName} from "../scripts/deployHelpers";
 import {ZeroAddress} from "ethers";
 
 const NAME = 'EnzymeStaker';
@@ -9,10 +8,7 @@ const allowedNetworks = ['hardhat', 'sepolia', 'ethereum',]
 const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
   const { deploy } = deployments;
-  const { deployer,  weth, comptroller, depositWrapper,  bridge,} = await getNamedAccounts();
-
-  const switcher = await getDeployedContractByName("Switcher")
-  const gauge = await getDeployedContractByName("Gauge")
+  const { deployer,  weth, comptroller, depositWrapper,  bridge, strategyL2,} = await getNamedAccounts();
 
   let wethAddress
   let comptrollerAddress
@@ -53,18 +49,18 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
     depositWrapperAddress = depositWrapper
   }
 
-  let strategyL2
+  let strategyL2Address
   if (hre.network.name == 'hardhat') {
     const strategyDeployment = await deployments.get("BridgedStakingStrategy")
-    strategyL2 = strategyDeployment.address
+    strategyL2Address = strategyDeployment.address
   } else {
-    throw new Error(`Add strategy L2 address for network ${hre.network.name}`)
+    strategyL2Address = strategyL2
   }
 
   await deploy(NAME, {
     contract: NAME,
     from: deployer,
-    args: [bridge, comptrollerAddress, depositWrapperAddress, strategyL2, 0, 1, wethAddress],
+    args: [bridge, comptrollerAddress, depositWrapperAddress, strategyL2Address, 0, 1, wethAddress],
     log: true,
     skipIfAlreadyDeployed: true,
   });
