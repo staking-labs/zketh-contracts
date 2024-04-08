@@ -10,7 +10,8 @@ jobs:
         uses: actions/checkout@v2
       - name: Environment
         uses: actions/setup-node@v3
-      - name: Test
-        uses: ambersun1234/hardhat-test-action@v1
-        with:
-          network: hardhat
+      - run: npm ci
+      - run: npm run deploy-local
+      - run: npm run test
+        env:
+          ETH_RPC_URL: ${{secrets.ETH_RPC_URL}}
