@@ -8,24 +8,7 @@ import {depositToVault} from "./helpers/VaultHelpers";
 import {PolygonZkEVMBridgeV2, PolygonZkEVMGlobalExitRoot} from "../typechain-types";
 import {mine} from "@nomicfoundation/hardhat-network-helpers/dist/src/helpers/mine";
 import {increase} from "@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time/increase";
-// @ts-ignore
-import {MTBridge, mtBridgeUtils} from "@0xpolygonhermez/zkevm-commonjs";
-const MerkleTreeBridge = MTBridge;
-const {verifyMerkleProof, getLeafValue} = mtBridgeUtils;
-
-function calculateGlobalExitRoot(mainnetExitRoot: any, rollupExitRoot: any) {
-  return ethers.solidityPackedKeccak256(["bytes32", "bytes32"], [mainnetExitRoot, rollupExitRoot]);
-}
-
-const _GLOBAL_INDEX_MAINNET_FLAG = 2n ** 64n;
-
-function computeGlobalIndex(indexLocal: any, indexRollup: any, isMainnet: Boolean) {
-  if (isMainnet) {
-    return BigInt(indexLocal) + _GLOBAL_INDEX_MAINNET_FLAG;
-  } else {
-    return BigInt(indexLocal) + BigInt(indexRollup) * 2n ** 32n;
-  }
-}
+import {BridgeHelper} from "./helpers/BridgeHelper";
 
 describe("BridgedStakingStrategy", function () {
   upgrades.silenceWarnings();
@@ -157,6 +140,51 @@ describe("BridgedStakingStrategy", function () {
       expect(await strategy.bridgedAssets()).to.equal(amount1 - vaultBuffer)
     })
 
+    it("Request all assets", async function () {
+      const {
+        vault,
+        weth,
+        strategy ,
+        user1,
+        governance,
+        enzymeStaker,
+        polygonZkEVMGlobalExitRootL2,
+        rollupManager,
+      } = await loadFixture(deployBridgeVaultStrategy);
+      await strategy.connect(governance).setDestination(await enzymeStaker.getAddress())
+      const amount1 = parseUnits("10.4", 18)
+      await depositToVault(user1, vault, weth, amount1)
+      await strategy.callBridge()
+      await vault.connect(user1).approve(await strategy.getAddress(), amount1)
+      await strategy.connect(user1).requestClaimAssets(amount1)
+      await increase(86400)
+      const canBridgeMessage = await strategy.needBridgingNow()
+      await strategy.callBridge()
+      const amount = canBridgeMessage[2] - canBridgeMessage[2] / 10000n
+      const msg = await BridgeHelper.prepareClaimAssetL2(
+        rollupManager,
+        await strategy.getAddress(),
+        amount,
+        polygonZkEVMGlobalExitRootL2
+      )
+      await polygonZkEVMBridgeContractL2.claimAsset(
+        msg.proofLocal,
+        msg.proofRollup,
+        msg.globalIndex,
+        msg.mainnetExitRoot,
+        msg.rollupExitRoot,
+        networkIDMainnet,
+        ZeroAddress,
+        networkIDRollup,
+        await strategy.getAddress(),
+        amount,
+        msg.metadata
+      )
+      await mine(5)
+      await strategy.claimRequestedAssets([user1.address])
+
+    })
+
     it("Request assets", async function () {
       const {
         vault,
@@ -196,99 +224,60 @@ describe("BridgedStakingStrategy", function () {
       expect(await strategy.bridgedAssets()).equal(amount1 - vaultBuffer)
       let canBridgeMessage = await strategy.needBridgingNow()
       expect(canBridgeMessage[0]).equal(false)
-      expect(canBridgeMessage[2]).equal(amountOfSharesToWithdraw)
+      expect(canBridgeMessage[2]).equal(amountOfSharesToWithdraw/* - vaultBuffer*/)
 
       await increase(86400)
       canBridgeMessage = await strategy.needBridgingNow()
       expect(canBridgeMessage[0]).equal(true)
       expect(canBridgeMessage[1]).equal(false)
-      expect(canBridgeMessage[2]).equal(amountOfSharesToWithdraw)
+      expect(canBridgeMessage[2]).equal(amountOfSharesToWithdraw/* - vaultBuffer*/)
 
       await strategy.callBridge()
 
-      expect(await strategy.pendingRequestedBridgingAssets()).equal(amountOfSharesToWithdraw)
-      expect(await strategy.bridgedAssets()).equal(amount1 - vaultBuffer - amountOfSharesToWithdraw)
+      expect(await strategy.pendingRequestedBridgingAssets()).equal(amountOfSharesToWithdraw/* - vaultBuffer*/)
+      expect(await strategy.bridgedAssets()).equal(amount1  - amountOfSharesToWithdraw - vaultBuffer)
 
       /// ====== Claim ether by bridge ======
-
-      // Add a claim leaf to rollup exit tree
-      const originNetwork = networkIDMainnet;
-      const tokenAddress = ZeroAddress; // ether
-      const amount = amountOfSharesToWithdraw
-      const destinationNetwork = networkIDRollup;
-      const destinationAddress = await strategy.getAddress()
-      const metadata = "0x"; // since is ether does not have metadata
-      const metadataHash = ethers.solidityPackedKeccak256(["bytes"], [metadata]);
-      const mainnetExitRoot = await polygonZkEVMGlobalExitRootL2.lastMainnetExitRoot();
-
-      // compute root merkle tree in Js
-      const height = 32;
-      const merkleTree = new MerkleTreeBridge(height);
-      const leafValue = getLeafValue(
-        LEAF_TYPE_ASSET,
-        originNetwork,
-        tokenAddress,
-        destinationNetwork,
-        destinationAddress,
+      const amount = canBridgeMessage[2] - canBridgeMessage[2] / 10000n
+      const msg = await BridgeHelper.prepareClaimAssetL2(
+        rollupManager,
+        await strategy.getAddress(),
         amount,
-        metadataHash
-      );
-      merkleTree.add(leafValue);
-
-      // check merkle root with SC
-      const rootJSRollup = merkleTree.getRoot();
-      const merkleTreeRollup = new MerkleTreeBridge(height);
-      merkleTreeRollup.add(rootJSRollup);
-      const rollupRoot = merkleTreeRollup.getRoot();
-
-      // add rollup Merkle root
-      await expect(polygonZkEVMGlobalExitRootL2.connect(rollupManager).updateExitRoot(rollupRoot))
-        .to.emit(polygonZkEVMGlobalExitRootL2, "UpdateGlobalExitRoot")
-        .withArgs(mainnetExitRoot, rollupRoot);
-
-      // check roots
-      const rollupExitRootSC = await polygonZkEVMGlobalExitRootL2.lastRollupExitRoot();
-      expect(rollupExitRootSC).to.be.equal(rollupRoot);
-
-      const computedGlobalExitRoot = calculateGlobalExitRoot(mainnetExitRoot, rollupExitRootSC);
-      expect(computedGlobalExitRoot).to.be.equal(await polygonZkEVMGlobalExitRootL2.getLastGlobalExitRoot());
-      //
-      // check merkle proof
-      const index = 0;
-      const proofLocal = merkleTree.getProofTreeByIndex(0);
-      const proofRollup = merkleTreeRollup.getProofTreeByIndex(0);
-      const globalIndex = computeGlobalIndex(index, index, false);
-
-      // verify merkle proof
-      expect(verifyMerkleProof(leafValue, proofLocal, index, rootJSRollup)).to.be.equal(true);
-      expect(
-        await polygonZkEVMBridgeContractL2.verifyMerkleProof(leafValue, proofLocal, index, rootJSRollup)
-      ).to.be.equal(true);
-
+        polygonZkEVMGlobalExitRootL2
+      )
       await expect(
         polygonZkEVMBridgeContractL2.claimAsset(
-          proofLocal,
-          proofRollup,
-          globalIndex,
-          mainnetExitRoot,
-          rollupExitRootSC,
-          originNetwork,
-          tokenAddress,
-          destinationNetwork,
-          destinationAddress,
+          msg.proofLocal,
+          msg.proofRollup,
+          msg.globalIndex,
+          msg.mainnetExitRoot,
+          msg.rollupExitRoot,
+          networkIDMainnet,
+          ZeroAddress,
+          networkIDRollup,
+          await strategy.getAddress(),
           amount,
-          metadata
+          msg.metadata
         )
       )
         .to.emit(polygonZkEVMBridgeContractL2, "ClaimEvent")
-        .withArgs(index, originNetwork, tokenAddress, destinationAddress, amount);
+        .withArgs(0, 0, ZeroAddress, await strategy.getAddress(), amount);
+
       /// ===================================
 
       await mine(5)
 
       await strategy.claimRequestedAssets([user1.address])
-
       await expect(strategy.claimRequestedAssets([ZeroAddress])).to.revertedWithCustomError(strategy, "NoClaimRequestForUser")
+
+      // claim all
+      const totalShares = await vault.balanceOf(user1.address)
+      expect(await await vault.totalSupply()).eq(totalShares)
+      await vault.connect(user1).approve(await strategy.getAddress(), totalShares)
+      await strategy.connect(user1).requestClaimAssets(totalShares)
+      await increase(86400)
+      await strategy.callBridge()
+
     })
 
     it("Switch strategy", async function () {
@@ -299,8 +288,6 @@ describe("BridgedStakingStrategy", function () {
         user1,
         governance,
         enzymeStaker,
-        polygonZkEVMGlobalExitRootL2,
-        rollupManager,
         switcher,
       } = await loadFixture(deployBridgeVaultStrategy);
 

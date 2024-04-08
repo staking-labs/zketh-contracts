@@ -70,6 +70,8 @@ contract BridgedStakingStrategy is IBridgingStrategy {
     error NoClaimRequestForUser(address user);
     error OnlySwitcherCanDoThis();
     error OnlyGovernanceCanDoThis();
+    error OnlyBridgeCanDoThis();
+    error WaitForCurrentBridgingDone();
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                      INITIALIZATION                        */
@@ -87,14 +89,13 @@ contract BridgedStakingStrategy is IBridgingStrategy {
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
     receive() external payable {
-        uint _pendingRequestedBridgingAssets = pendingRequestedBridgingAssets;
-        if (!_isWethWithdrawing && _pendingRequestedBridgingAssets > 0) {
+        if (!_isWethWithdrawing && pendingRequestedBridgingAssets > 0) {
             IWETH9(asset).deposit{value: msg.value}();
-            if (msg.value <= _pendingRequestedBridgingAssets && ISwitcher(switcher).pendingStrategy() == address(0)) {
-                pendingRequestedBridgingAssets = _pendingRequestedBridgingAssets - msg.value;
-            } else {
-                pendingRequestedBridgingAssets = 0;
+            if (msg.sender != bridge) {
+                revert OnlyBridgeCanDoThis();
             }
+
+            pendingRequestedBridgingAssets = 0;
         }
     }
 
@@ -126,6 +127,9 @@ contract BridgedStakingStrategy is IBridgingStrategy {
 
     /// @inheritdoc IBridgingStrategy
     function requestClaimAllAssets() external onlySwitcher {
+        if (pendingRequestedBridgingAssets > 0) {
+            revert WaitForCurrentBridgingDone();
+        }
         uint amount = type(uint).max;
 
         IPolygonZkEVMBridgeV2(bridge).bridgeMessage(
@@ -136,7 +140,7 @@ contract BridgedStakingStrategy is IBridgingStrategy {
         );
 
         lastBridgeTime = block.timestamp;
-        pendingRequestedBridgingAssets += bridgedAssets;
+        pendingRequestedBridgingAssets = bridgedAssets;
         bridgedAssets = 0;
 
         emit BridgeRequestMessageToL1(amount);
@@ -169,9 +173,6 @@ contract BridgedStakingStrategy is IBridgingStrategy {
         IERC20(_getVault()).transferFrom(msg.sender, address(this), vaultSharesAmount);
         requests[msg.sender] += vaultSharesAmount;
         totalRequestedVaultSharesForClaim += vaultSharesAmount;
-
-        // todo send cross-chain message if need
-
         emit RequestAssets(msg.sender, vaultSharesAmount);
     }
 
@@ -242,7 +243,7 @@ contract BridgedStakingStrategy is IBridgingStrategy {
 
             lastBridgeTime = block.timestamp;
             bridgedAssets -= amount;
-            pendingRequestedBridgingAssets += amount;
+            pendingRequestedBridgingAssets = amount;
 
             emit BridgeRequestMessageToL1(amount);
         }
@@ -264,10 +265,13 @@ contract BridgedStakingStrategy is IBridgingStrategy {
 
     /// @inheritdoc IBridgingStrategy
     function needBridgingNow() public view returns (bool need, bool toL1, uint amount) {
-        uint bal = IERC20(asset).balanceOf(address(this)) + pendingRequestedBridgingAssets;
+        if (pendingRequestedBridgingAssets > 0) {
+            return (false, false, 0);
+        }
+
+        uint bal = IERC20(asset).balanceOf(address(this));
         uint _totalRequested = totalRequested();
 
-        // todo add buffer
         if (bal > _totalRequested) {
             amount = bal - _totalRequested;
             toL1 = true;
@@ -279,16 +283,22 @@ contract BridgedStakingStrategy is IBridgingStrategy {
                 need = true;
             }
         } else {
-            amount = _totalRequested - bal;
-            if (
-                amount > 0
-                && block.timestamp - lastEnzymeDepositTime >= ENZYME_VAULT_REDEEM_TIMELOCK
-                && (
+            uint vaultBuffer = IERC20(asset).balanceOf(_getVault());
+            if (_totalRequested - bal > vaultBuffer) {
+                amount = _totalRequested - bal;
+                if (amount > bridgedAssets) {
+                    amount = bridgedAssets;
+                }
+                if (
+                    amount > 0
+                    && block.timestamp - lastEnzymeDepositTime >= ENZYME_VAULT_REDEEM_TIMELOCK
+                    && (
                     amount >= SHUTTLE_FORCE_CLAIM
                     || block.timestamp - lastBridgeTime >= MAX_WAIT_TIME_FOR_BRIDGING
                 )
-            ) {
-                need = true;
+                ) {
+                    need = true;
+                }
             }
         }
     }

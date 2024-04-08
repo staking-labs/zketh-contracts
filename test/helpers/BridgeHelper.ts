@@ -1,21 +1,98 @@
 import {solidityPacked} from "ethers";
 import {ethers} from "hardhat";
 import {expect} from "chai";
+import {ZeroAddress} from "ethers";
 // @ts-ignore
 import {MTBridge, mtBridgeUtils} from "@0xpolygonhermez/zkevm-commonjs";
 import {EthAddresses} from "../../scripts/EthAddresses";
 import {HardhatEthersSigner} from "@nomicfoundation/hardhat-ethers/signers";
 const MerkleTreeBridge = MTBridge;
 const {verifyMerkleProof, getLeafValue} = mtBridgeUtils;
-import {PolygonZkEVMBridgeV2__factory, PolygonZkEVMGlobalExitRootV2__factory} from "../../typechain-types";
+import {PolygonZkEVMBridgeV2__factory, PolygonZkEVMGlobalExitRootV2__factory, PolygonZkEVMGlobalExitRoot} from "../../typechain-types";
 
 export class BridgeHelper {
   static _GLOBAL_INDEX_MAINNET_FLAG = 2n ** 64n;
+  static LEAF_TYPE_ASSET = 0;
   static LEAF_TYPE_MESSAGE = 1;
   static networkIDMainnet = 0
   static networkIDRollup = 1
 
-  static async prepareMessage(
+  static async prepareClaimAssetL2(
+    signer: HardhatEthersSigner,
+    receiverAddress: string,
+    amount: bigint,
+    polygonZkEVMGlobalExitRootL2: PolygonZkEVMGlobalExitRoot,
+  ): Promise<{
+    proofLocal: any,
+    proofRollup: any,
+    globalIndex: bigint,
+    mainnetExitRoot: string,
+    rollupExitRoot: string,
+    metadata: string,
+  }> {
+    const originNetwork = this.networkIDMainnet;
+    const tokenAddress = ZeroAddress; // ether
+    const destinationNetwork = this.networkIDRollup;
+    const destinationAddress = receiverAddress
+    const metadata = "0x"; // since is ether does not have metadata
+    const metadataHash = ethers.solidityPackedKeccak256(["bytes"], [metadata]);
+    const mainnetExitRoot = await polygonZkEVMGlobalExitRootL2.lastMainnetExitRoot();
+
+// compute root merkle tree in Js
+    const height = 32;
+    const merkleTree = new MerkleTreeBridge(height);
+    const leafValue = getLeafValue(
+      this.LEAF_TYPE_ASSET,
+      originNetwork,
+      tokenAddress,
+      destinationNetwork,
+      destinationAddress,
+      amount,
+      metadataHash
+    );
+    merkleTree.add(leafValue);
+
+    // check merkle root with SC
+    const rootJSRollup = merkleTree.getRoot();
+    const merkleTreeRollup = new MerkleTreeBridge(height);
+    merkleTreeRollup.add(rootJSRollup);
+    const rollupRoot = merkleTreeRollup.getRoot();
+
+    // add rollup Merkle root
+    await expect(polygonZkEVMGlobalExitRootL2.connect(signer).updateExitRoot(rollupRoot))
+      .to.emit(polygonZkEVMGlobalExitRootL2, "UpdateGlobalExitRoot")
+      .withArgs(mainnetExitRoot, rollupRoot);
+
+    // check roots
+    const rollupExitRoot = await polygonZkEVMGlobalExitRootL2.lastRollupExitRoot();
+    expect(rollupExitRoot).to.be.equal(rollupRoot);
+
+    const computedGlobalExitRoot = this.calculateGlobalExitRoot(mainnetExitRoot, rollupExitRoot);
+    expect(computedGlobalExitRoot).to.be.equal(await polygonZkEVMGlobalExitRootL2.getLastGlobalExitRoot());
+    //
+    // check merkle proof
+    const index = 0;
+    const proofLocal = merkleTree.getProofTreeByIndex(0);
+    const proofRollup = merkleTreeRollup.getProofTreeByIndex(0);
+    const globalIndex = this.computeGlobalIndex(index, index, false);
+
+    // verify merkle proof
+    expect(verifyMerkleProof(leafValue, proofLocal, index, rootJSRollup)).to.be.equal(true);
+    /*expect(
+      await polygonZkEVMBridgeContractL2.verifyMerkleProof(leafValue, proofLocal, index, rootJSRollup)
+    ).to.be.equal(true);*/
+
+    return {
+      proofLocal,
+      proofRollup,
+      globalIndex,
+      mainnetExitRoot,
+      rollupExitRoot,
+      metadata,
+    }
+  }
+
+  static async prepareMessageL1(
     signer: HardhatEthersSigner,
     receiverAddress: string,
     amount: bigint
@@ -94,5 +171,9 @@ export class BridgeHelper {
     } else {
       return BigInt(indexLocal) + BigInt(indexRollup) * 2n ** 32n;
     }
+  }
+
+  static calculateGlobalExitRoot(mainnetExitRoot: any, rollupExitRoot: any) {
+    return ethers.solidityPackedKeccak256(["bytes32", "bytes32"], [mainnetExitRoot, rollupExitRoot]);
   }
 }

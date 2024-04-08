@@ -58,7 +58,7 @@ describe("Enzyme staker forking test", function () {
 
     const requestAmount = parseEther("1.0")
 
-    const msg = await BridgeHelper.prepareMessage(deployer, await enzymeStaker.getAddress(), requestAmount)
+    const msg = await BridgeHelper.prepareMessageL1(deployer, await enzymeStaker.getAddress(), requestAmount)
 
     await expect(enzymeStaker.claimMessage(
       msg.proofLocal,
@@ -107,7 +107,7 @@ describe("Enzyme staker forking test", function () {
     });
 
     const requestAmount = MaxUint256
-    const msg = await BridgeHelper.prepareMessage(deployer, await enzymeStaker.getAddress(), requestAmount)
+    const msg = await BridgeHelper.prepareMessageL1(deployer, await enzymeStaker.getAddress(), requestAmount)
     await increase(24 * 3600)
     await enzymeStaker.claimMessage(
       msg.proofLocal,
