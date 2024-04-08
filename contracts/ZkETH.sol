@@ -21,6 +21,9 @@ contract ZkETH is ERC4626, ReentrancyGuard {
     /// @dev Denominator for buffer calculation. 100% of the buffer amount.
     uint constant public BUFFER_DENOMINATOR = 100_000;
 
+    /// @dev A user should wait this block amounts before able to withdraw.
+    uint constant public WITHDRAW_REQUEST_BLOCKS = 5;
+
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                          STORAGE                           */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
@@ -31,9 +34,6 @@ contract ZkETH is ERC4626, ReentrancyGuard {
     /// @notice Stakeless gauge for distributing rewards
     address public immutable gauge;
 
-    /// @dev A user should wait this block amounts before able to withdraw.
-    uint public withdrawRequestBlocks;
-
     /// @dev msg.sender => block when request sent. Should be cleared on deposit/withdraw action
     ///      For simplification we are setup new withdraw request on each deposit/transfer
     mapping(address => uint) public withdrawRequests;
@@ -42,7 +42,7 @@ contract ZkETH is ERC4626, ReentrancyGuard {
     /*                          EVENTS                            */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
-    event Invest(address switcher, uint amount);
+    event Invest(uint amount);
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                       CUSTOM ERRORS                        */
@@ -59,7 +59,6 @@ contract ZkETH is ERC4626, ReentrancyGuard {
     constructor(address weth, address switcher_, address gauge_) ERC20("Synthetic Diva ETH", "zkETH") ERC4626(IERC20(weth)) {
         switcher = switcher_;
         gauge = gauge_;
-        withdrawRequestBlocks = 5;
         ISwitcher(switcher_).setup(weth);
         IGauge(gauge_).setStakingToken(address(this));
     }
@@ -145,10 +144,10 @@ contract ZkETH is ERC4626, ReentrancyGuard {
     /// @dev Price of 1 full share
     function sharePrice() external view returns (uint) {
         uint units = 10 ** uint256(decimals());
-        uint totalSupply_ = totalSupply();
-        return totalSupply_ == 0
+        uint _totalSupply = totalSupply();
+        return _totalSupply == 0
             ? units
-            : units * totalAssets() / totalSupply_;
+            : units * totalAssets() / _totalSupply;
     }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
@@ -159,22 +158,21 @@ contract ZkETH is ERC4626, ReentrancyGuard {
     function _afterDeposit(uint, /*assets*/ uint, /*shares*/ address receiver) internal {
         withdrawRequests[receiver] = block.number;
 
-        address _switcher = switcher;
-        IERC20 asset_ = IERC20(asset());
-        uint256 toInvest = _availableToInvest(_switcher, asset_);
+        IERC20 _asset = IERC20(asset());
+        uint toInvest = _availableToInvest(_asset);
         // invest only when buffer is filled
-        if (toInvest > 0) {
-            asset_.safeTransfer(_switcher, toInvest);
-            ISwitcher(_switcher).investAll();
-            emit Invest(_switcher, toInvest);
+        if (toInvest != 0) {
+            _asset.transfer(switcher, toInvest);
+            ISwitcher(switcher).investAll();
+            emit Invest(toInvest);
         }
 
     }
 
     /// @notice Returns amount of assets ready to invest to the switcher
-    function _availableToInvest(address _switcher, IERC20 asset_) internal view returns (uint) {
+    function _availableToInvest(IERC20 asset_) internal view returns (uint) {
         uint assetsInVault = asset_.balanceOf(address(this));
-        uint assetsInSwitcher = ISwitcher(_switcher).totalAssets();
+        uint assetsInSwitcher = ISwitcher(switcher).totalAssets();
         uint wantInvestTotal = (assetsInVault + assetsInSwitcher)
             * (BUFFER_DENOMINATOR - BUFFER) / BUFFER_DENOMINATOR;
         if (assetsInSwitcher >= wantInvestTotal) {
@@ -187,24 +185,23 @@ contract ZkETH is ERC4626, ReentrancyGuard {
 
     /// @dev Internal hook for getting necessary assets from strategy.
     function _beforeWithdraw(uint assets, uint shares, address owner) internal {
-        if (withdrawRequests[owner] + withdrawRequestBlocks >= block.number) {
+        if (withdrawRequests[owner] + WITHDRAW_REQUEST_BLOCKS >= block.number) {
             revert WaitAFewBlocks();
         }
         withdrawRequests[owner] = block.number;
 
-        IERC20 asset_ = IERC20(asset());
-        uint balance = asset_.balanceOf(address(this));
+        IERC20 _asset = IERC20(asset());
+        uint balance = _asset.balanceOf(address(this));
         // if not enough balance in the vault withdraw from strategies
         if (balance < assets) {
             _processWithdrawFromSwitcher(
                 assets,
                 shares,
                 totalSupply(),
-                ISwitcher(switcher),
                 balance
             );
         }
-        balance = asset_.balanceOf(address(this));
+        balance = _asset.balanceOf(address(this));
         if (assets > balance) {
             revert Slippage();
         }
@@ -216,14 +213,13 @@ contract ZkETH is ERC4626, ReentrancyGuard {
         uint assetsNeed,
         uint shares,
         uint totalSupply_,
-        ISwitcher _switcher,
         uint assetsInVault
     ) internal {
         // withdraw everything from the switcher to accurately check the share value
         if (shares == totalSupply_) {
-            _switcher.withdrawAllToVault();
+            ISwitcher(switcher).withdrawAllToVault();
         } else {
-            uint assetsInSwitcher = _switcher.totalAssets();
+            uint assetsInSwitcher = ISwitcher(switcher).totalAssets();
 
             // we should always have buffer amount inside the vault
             // assume `assetsNeed` can not be higher than entire balance
@@ -232,7 +228,7 @@ contract ZkETH is ERC4626, ReentrancyGuard {
             // this code should not be called if `assetsInVault` higher than `assetsNeed`
             uint missing = Math.min(expectedBuffer + assetsNeed - assetsInVault, assetsInSwitcher);
             // if zero should be resolved on switcher side
-            _switcher.withdrawToVault(missing);
+            ISwitcher(switcher).withdrawToVault(missing);
         }
     }
 

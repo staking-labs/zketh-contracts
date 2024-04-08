@@ -41,10 +41,9 @@ contract GaugeRewarder {
             revert WaitFor(lastExec + duration);
         }
 
-        address _rewardToken = rewardToken;
         uint _rewardAmountPerDuration = rewardAmountPerDuration;
-        IRewardToken(_rewardToken).mint(rewardAmountPerDuration);
-        IGauge(gauge).notifyRewardAmount(_rewardToken, _rewardAmountPerDuration);
+        IRewardToken(rewardToken).mint(rewardAmountPerDuration);
+        IGauge(gauge).notifyRewardAmount(rewardToken, _rewardAmountPerDuration);
         lastExec = block.timestamp;
     }
 }

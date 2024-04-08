@@ -66,7 +66,7 @@ abstract contract StakelessPoolBase is IGauge, ReentrancyGuard {
     /// @dev Allowed reward tokens for staking token stored in map for fast check.
     mapping(address => bool) public isRewardToken;
 
-    /// @notice account => recipient. All rewards for this account will receive recipient
+    /// @notice account => recipient. The recipient will receive all rewards for this account.
     mapping(address => address) public rewardsRedirect;
 
     // *************************************************************
@@ -77,6 +77,17 @@ abstract contract StakelessPoolBase is IGauge, ReentrancyGuard {
     event BalanceDecreased(address indexed account, uint amount);
     event NotifyReward(address indexed from, address indexed reward, uint amount);
     event ClaimRewards(address indexed account, address indexed reward, uint amount, address recepient);
+
+    // *************************************************************
+    //                        ERRORS
+    // *************************************************************
+
+    error AlreadyRegistered();
+    error RewardsNotEnded();
+    error NotAllowed();
+    error NotRewardToken();
+    error ZeroAmount();
+    error AmountShouldBeHigherThanRemainingRewards();
 
     // *************************************************************
     //                        INIT
@@ -137,8 +148,8 @@ abstract contract StakelessPoolBase is IGauge, ReentrancyGuard {
     function left(address rewardToken) public view returns (uint) {
         uint _periodFinish = periodFinish[rewardToken];
         if (block.timestamp >= _periodFinish) return 0;
-        uint _remaining = _periodFinish - block.timestamp;
-        return _remaining * rewardRate[rewardToken] / _PRECISION;
+        uint remaining = _periodFinish - block.timestamp;
+        return remaining * rewardRate[rewardToken] / _PRECISION;
     }
 
     /// @dev Approximate of earned rewards ready to claim
@@ -155,7 +166,9 @@ abstract contract StakelessPoolBase is IGauge, ReentrancyGuard {
 
     /// @dev Whitelist reward token for staking token. Only operator can do it.
     function registerRewardToken(address rewardToken) external onlyAllowedContracts {
-        require(!isRewardToken[rewardToken], "Already registered");
+        if (isRewardToken[rewardToken]) {
+            revert AlreadyRegistered();
+        }
         isRewardToken[rewardToken] = true;
         rewardTokens.push(rewardToken);
     }
@@ -163,8 +176,12 @@ abstract contract StakelessPoolBase is IGauge, ReentrancyGuard {
     /// @dev Remove from whitelist reward token for staking token. Only operator can do it.
     ///      We assume that the first token can not be removed.
     function removeRewardToken(address rewardToken) external onlyAllowedContracts {
-        require(periodFinish[rewardToken] < block.timestamp, "Rewards not ended");
-        require(isRewardToken[rewardToken], "Not reward token");
+        if (periodFinish[rewardToken] >= block.timestamp) {
+            revert RewardsNotEnded();
+        }
+        if (!isRewardToken[rewardToken]) {
+            revert NotRewardToken();
+        }
 
         isRewardToken[rewardToken] = false;
         uint length = rewardTokens.length;
@@ -183,7 +200,9 @@ abstract contract StakelessPoolBase is IGauge, ReentrancyGuard {
     /// @dev Account or governance can setup a redirect of all rewards.
     ///      It needs for 3rd party contracts integrations.
     function setRewardsRedirect(address account, address recipient) external {
-        require(msg.sender == account || msg.sender == governance, "Not allowed");
+        if (msg.sender != account && msg.sender != governance) {
+            revert NotAllowed();
+        }
         rewardsRedirect[account] = recipient;
     }
 
@@ -196,7 +215,9 @@ abstract contract StakelessPoolBase is IGauge, ReentrancyGuard {
         address account,
         uint amount
     ) internal virtual nonReentrant {
-        require(amount > 0, "Zero amount");
+        if (amount == 0) {
+            revert ZeroAmount();
+        }
 
         _increaseBalance(account, amount);
         emit BalanceIncreased(account, amount);
@@ -253,7 +274,9 @@ abstract contract StakelessPoolBase is IGauge, ReentrancyGuard {
         if (newRecipient != address(0)) {
             recipient = newRecipient;
         }
-        require(recipient == msg.sender, "Not allowed");
+        if (recipient != msg.sender) {
+            revert NotAllowed();
+        }
 
         _updateDerivedBalance(account);
 
@@ -264,9 +287,9 @@ abstract contract StakelessPoolBase is IGauge, ReentrancyGuard {
             _updateReward(rewardToken, account);
 
             uint _reward = rewards[rewardToken][account];
-            if (_reward > 0) {
+            if (_reward != 0) {
                 rewards[rewardToken][account] = 0;
-                IERC20(rewardToken).safeTransfer(recipient, _reward);
+                IERC20(rewardToken).transfer(recipient, _reward);
             }
 
             emit ClaimRewards(account, rewardToken, _reward, recipient);
@@ -300,20 +323,25 @@ abstract contract StakelessPoolBase is IGauge, ReentrancyGuard {
     //                         NOTIFY
     // *************************************************************
 
+    /// @param transferRewards False mean that the given amount is already sent to the balance
     function _notifyRewardAmount(
         address rewardToken,
         uint amount,
         bool transferRewards
     ) internal virtual {
-        require(amount > 0, "Zero amount");
-        require(defaultRewardToken == rewardToken || isRewardToken[rewardToken], "Token not allowed");
+        if (amount == 0) {
+            revert ZeroAmount();
+        }
+        if (defaultRewardToken != rewardToken && !isRewardToken[rewardToken]) {
+            revert NotRewardToken();
+        }
 
         _updateReward(rewardToken, address(0));
         uint _duration = duration;
 
         if (transferRewards) {
             uint balanceBefore = IERC20(rewardToken).balanceOf(address(this));
-            IERC20(rewardToken).safeTransferFrom(msg.sender, address(this), amount);
+            IERC20(rewardToken).transferFrom(msg.sender, address(this), amount);
             // refresh amount if token was taxable
             amount = IERC20(rewardToken).balanceOf(address(this)) - balanceBefore;
         }
@@ -322,10 +350,12 @@ abstract contract StakelessPoolBase is IGauge, ReentrancyGuard {
         if (block.timestamp >= periodFinish[rewardToken]) {
             rewardRate[rewardToken] = amount * _PRECISION / _duration;
         } else {
-            uint _remaining = periodFinish[rewardToken] - block.timestamp;
-            uint _left = _remaining * rewardRate[rewardToken];
+            uint remaining = periodFinish[rewardToken] - block.timestamp;
+            uint _left = remaining * rewardRate[rewardToken];
             // rewards should not extend period infinity, only higher amount allowed
-            require(amount > _left / _PRECISION, "Amount should be higher than remaining rewards");
+            if (amount <= _left / _PRECISION) {
+                revert AmountShouldBeHigherThanRemainingRewards();
+            }
             rewardRate[rewardToken] = (amount * _PRECISION + _left) / _duration;
         }
 
@@ -339,6 +369,8 @@ abstract contract StakelessPoolBase is IGauge, ReentrancyGuard {
     // *************************************************************
 
     function _requireGov() internal view {
-        require (msg.sender == governance, "Not allowed");
+        if (msg.sender != governance) {
+            revert NotAllowed();
+        }
     }
 }

@@ -88,7 +88,6 @@ contract Switcher is ISwitcher {
     /// @inheritdoc ISwitcher
     function withdrawAllToVault() external onlyVault {
         _checkSwitching();
-        address _vault = vault;
         address _strategy = strategy;
         address _asset = asset;
         if (_strategy != address(0)) {
@@ -100,8 +99,8 @@ contract Switcher is ISwitcher {
         }
 
         uint balanceAfter = IERC20(_asset).balanceOf(address(this));
-        if (balanceAfter > 0) {
-            IERC20(_asset).safeTransfer(_vault, balanceAfter);
+        if (balanceAfter != 0) {
+            IERC20(_asset).safeTransfer(vault, balanceAfter);
         }
     }
 
@@ -130,17 +129,18 @@ contract Switcher is ISwitcher {
 
                 emit WithdrawFromStrategy(_strategy, withdrawAmount);
 
-                uint currentBalance = IERC20(_asset).balanceOf(address(this));
+                balance = IERC20(_asset).balanceOf(address(this));
+//                uint currentBalance = IERC20(_asset).balanceOf(address(this));
                 // assume that we can not decrease switcher balance during withdraw process
-                uint withdrew = currentBalance - balance;
-                balance = currentBalance;
+//                uint withdrew = currentBalance - balance;
+//                balance = currentBalance;
 
-                remainingAmount = withdrew < remainingAmount ? remainingAmount - withdrew : 0;
+//                remainingAmount = withdrew < remainingAmount ? remainingAmount - withdrew : 0;
             }
         }
 
         if (balance != 0) {
-            IERC20(_asset).safeTransfer(_vault, Math.min(amount, balance));
+            IERC20(_asset).transfer(_vault, Math.min(amount, balance));
         }
     }
 
@@ -153,7 +153,7 @@ contract Switcher is ISwitcher {
     }
 
     function announceNewStrategy(address newStrategy_) external onlyGovernance {
-        if (announcedPendingStrategy != address(0)) {
+        if (announcedPendingStrategy != address(0) || pendingStrategy != address(0)) {
             revert Already();
         }
         announcedPendingStrategy = newStrategy_;
@@ -183,9 +183,12 @@ contract Switcher is ISwitcher {
         }
         pendingStrategy = _announcedPendingStrategy;
         announcedPendingStrategy = address(0);
-        uint needRequest = IBridgingStrategy(strategy).bridgedAssets() - IBridgingStrategy(strategy).totalRequested();
-        if (needRequest > 0) {
-            IBridgingStrategy(strategy).requestClaimAllAssets();
+        IBridgingStrategy _strategy = IBridgingStrategy(strategy);
+        uint bridgedAssets = _strategy.bridgedAssets();
+        uint totalRequested = _strategy.totalRequested();
+        uint needRequest = bridgedAssets >= totalRequested ? bridgedAssets - totalRequested : bridgedAssets;
+        if (needRequest != 0) {
+            _strategy.requestClaimAllAssets();
         }
         emit PendingStrategy(_announcedPendingStrategy);
     }
@@ -195,14 +198,15 @@ contract Switcher is ISwitcher {
         if (_pendingStrategy == address(0)) {
             revert StrategyIsNotSwitchingNow();
         }
+        IBridgingStrategy _strategy = IBridgingStrategy(strategy);
         if (
-            IBridgingStrategy(strategy).bridgedAssets() > 0
-            || IBridgingStrategy(strategy).pendingRequestedBridgingAssets() > 0
+            _strategy.bridgedAssets() != 0
+            || _strategy.pendingRequestedBridgingAssets() != 0
         ) {
             revert AssetsHaveNotYetBeenBridged();
         }
 
-        IBridgingStrategy(strategy).withdrawAllToSwitcher();
+        _strategy.withdrawAllToSwitcher();
 
         strategy = _pendingStrategy;
         pendingStrategy = address(0);

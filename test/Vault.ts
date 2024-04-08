@@ -64,7 +64,7 @@ describe("Vault", function () {
       // zkETH
       expect(await vault.BUFFER_DENOMINATOR()).to.equal(100_000n);
       expect(await vault.switcher()).to.equal(await switcher.getAddress());
-      expect(await vault.withdrawRequestBlocks()).to.equal(5n);
+      expect(await vault.WITHDRAW_REQUEST_BLOCKS()).to.equal(5n);
       expect(await vault.sharePrice()).to.equal(parseUnits('1', 18));
 
       // Switcher

@@ -34,7 +34,7 @@ contract BridgedStakingStrategy is IBridgingStrategy {
     /// @inheritdoc IBridgingStrategy
     address public immutable switcher;
 
-    uint32 public destinationNetwork;
+    uint32 public immutable destinationNetwork;
 
     /// @inheritdoc IBridgingStrategy
     address public destination;
@@ -148,7 +148,7 @@ contract BridgedStakingStrategy is IBridgingStrategy {
 
     /// @inheritdoc IBridgingStrategy
     function withdrawAllToSwitcher() external onlySwitcher returns(uint amount) {
-        if (bridgedAssets > 0 || pendingRequestedBridgingAssets > 0) {
+        if (bridgedAssets != 0 || pendingRequestedBridgingAssets != 0) {
             revert NotAllAssetsAreBridged();
         }
         amount = IERC20(asset).balanceOf(address (this));
@@ -157,11 +157,10 @@ contract BridgedStakingStrategy is IBridgingStrategy {
 
     /// @inheritdoc IBridgingStrategy
     function withdrawToSwitcher(uint amount) external onlySwitcher {
-        uint withdrawAmount = amount;
-        if (IERC20(asset).balanceOf(address(this)) < withdrawAmount) {
+        if (IERC20(asset).balanceOf(address(this)) < amount) {
             revert NotEnoughBridgedAssets();
         }
-        IERC20(asset).transfer(switcher, withdrawAmount);
+        IERC20(asset).transfer(switcher, amount);
     }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/

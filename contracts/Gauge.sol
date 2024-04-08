@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./StakelessPoolBase.sol";
-import "./interfaces/IGauge.sol";
 
 /// @title Stakeless pool for vaults
 /// @author belbix
@@ -24,6 +23,13 @@ contract Gauge is StakelessPoolBase {
     event Withdraw(address indexed account, uint amount, bool full, uint veId);
 
     // *************************************************************
+    //                        ERRORS
+    // *************************************************************
+
+    error Already();
+    error WrongStakingToken();
+
+    // *************************************************************
     //                        INIT
     // *************************************************************
 
@@ -34,7 +40,9 @@ contract Gauge is StakelessPoolBase {
     ) StakelessPoolBase(defaultRewardToken_, duration_, governance_) {}
 
     function setStakingToken(address stakingToken_) external {
-        require (stakingToken == address(0), "Already");
+        if (stakingToken != address(0)) {
+            revert Already();
+        }
         stakingToken = stakingToken_;
         emit StakingToken(stakingToken_);
     }
@@ -73,7 +81,9 @@ contract Gauge is StakelessPoolBase {
     /// @dev Must be called from stakingToken when user balance changed.
     function handleBalanceChange(address account) external {
         address _stakingToken = msg.sender;
-        require(stakingToken == _stakingToken, "Wrong staking token");
+        if (stakingToken != _stakingToken) {
+            revert WrongStakingToken();
+        }
 
         uint stakedBalance = balanceOf[account];
         uint actualBalance = IERC20(_stakingToken).balanceOf(account);
@@ -110,6 +120,7 @@ contract Gauge is StakelessPoolBase {
     //                   REWARDS DISTRIBUTION
     // *************************************************************
 
+    /// @dev Anybody is able to call this function
     function notifyRewardAmount(address token, uint amount) external nonReentrant {
         _notifyRewardAmount(token, amount, true);
     }
